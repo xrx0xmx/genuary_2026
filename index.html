@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genuary 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Space Mono', monospace;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: #888;
+      font-size: 1rem;
+    }
+    
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+    
+    .day-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 2rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+    
+    .day-card:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .day-card .label {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .day-card.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #555;
+      font-size: 0.8rem;
+    }
+    
+    footer a {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GENUARY 2026</h1>
+      <p class="subtitle">Creative coding challenges • p5.js</p>
+    </header>
+    
+    <div class="days-grid" id="days"></div>
+    
+    <footer>
+      <p>Made with p5.js + Vite</p>
+    </footer>
+  </div>
+  
+  <script type="module">
+    // Lista de días disponibles (se actualiza manualmente o detecta carpetas)
+    const availableDays = [1, 2]; // Añadir más días aquí cuando se creen
+    
+    const daysContainer = document.getElementById('days');
+    
+    for (let i = 1; i <= 31; i++) {
+      const isAvailable = availableDays.includes(i);
+      const card = document.createElement('a');
+      card.href = isAvailable ? `/${i}/` : '#';
+      card.className = `day-card ${isAvailable ? '' : 'disabled'}`;
+      card.innerHTML = `
+        <span>${i}</span>
+        <span class="label">Día</span>
+      `;
+      daysContainer.appendChild(card);
+    }
+  </script>
+</body>
+</html>
+
