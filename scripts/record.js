@@ -39,14 +39,16 @@ console.log(`🎬 Grabando loop del día ${day}...`);
 const sketchPath = resolve(dayDir, 'sketch.js');
 const sketchContent = readFileSync(sketchPath, 'utf-8');
 
-// Extraer configuración del sketch
-const durationMatch = sketchContent.match(/LOOP_DURATION\s*=\s*(\d+)/);
-const fpsMatch = sketchContent.match(/FPS\s*=\s*(\d+)/);
-const sizeMatch = sketchContent.match(/CANVAS_SIZE\s*=\s*(\d+)/);
+// Helper para extraer números (enteros o decimales)
+function readNumericValue(name, fallback) {
+  const pattern = new RegExp(`${name}\\s*=\\s*([\\d.]+)`);
+  const match = sketchContent.match(pattern);
+  return match ? parseFloat(match[1]) : fallback;
+}
 
-const LOOP_DURATION = durationMatch ? parseInt(durationMatch[1]) : 4;
-const FPS = fpsMatch ? parseInt(fpsMatch[1]) : 60;
-const CANVAS_SIZE = sizeMatch ? parseInt(sizeMatch[1]) : 800;
+const LOOP_DURATION = readNumericValue('LOOP_DURATION', 4);
+const FPS = readNumericValue('FPS', 60);
+const CANVAS_SIZE = readNumericValue('CANVAS_SIZE', 800);
 const TOTAL_FRAMES = LOOP_DURATION * FPS;
 
 console.log(`📊 Configuración: ${LOOP_DURATION}s @ ${FPS}fps = ${TOTAL_FRAMES} frames`);
@@ -100,8 +102,9 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage();
 await page.setViewport({ width: CANVAS_SIZE + 50, height: CANVAS_SIZE + 50 });
 
-// Navegar a la página
-await page.goto(`http://localhost:4000/`, { waitUntil: 'networkidle0' });
+// Navegar a la página del día solicitado
+const targetUrl = `http://localhost:4000/${day}/`;
+await page.goto(targetUrl, { waitUntil: 'networkidle0' });
 
 // Esperar a que el canvas esté listo
 await page.waitForSelector('canvas');
@@ -182,4 +185,3 @@ console.log('🎉 ¡Grabación completada!');
 console.log(`📁 Archivos en: ${outputDir}`);
 console.log(`   - loop.mp4`);
 console.log(`   - loop.gif`);
-

@@ -104,6 +104,21 @@ const sketch = (p) => {
     
     // ============================================
   };
+
+  p.keyPressed = () => {
+    if (p.key === 's' || p.key === 'S') {
+      if (window.isRecording?.()) {
+        console.warn('⚠️ Ya hay una grabación en curso');
+        return;
+      }
+      if (window.startRecording) {
+        console.log(\`🔴 Iniciando grabación de \${LOOP_DURATION}s...\`);
+        window.startRecording();
+      } else {
+        console.warn('⚠️ Recorder no disponible');
+      }
+    }
+  };
 };
 
 // Inicializar p5 en modo instancia
@@ -130,4 +145,3 @@ console.log(`   npm run dev -- ${day}`);
 console.log('');
 console.log(`🎬 Para grabar un loop perfecto:`);
 console.log(`   npm run record ${day}`);
-
