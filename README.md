@@ -12,12 +12,6 @@ Cada día de enero tiene su propia carpeta con un sketch único basado en el pro
 
 - Node.js 18+
 - npm
-- FFmpeg (opcional, para convertir video)
-
-```bash
-# Instalar FFmpeg en macOS
-brew install ffmpeg
-```
 
 ### Pasos
 
@@ -103,18 +97,28 @@ Un sketch minimalista que explora variaciones de un círculo azul con movimiento
 
 ## Grabación de loops
 
-Presiona `S` en cualquier sketch para iniciar la grabación:
+La grabación usa **MediaRecorder API** del navegador (no requiere software externo).
 
-1. El sketch esperará al inicio del siguiente loop
-2. Grabará la duración configurada
-3. Se abrirá una nueva pestaña con el video
-4. Haz clic en "Descargar" o clic derecho → "Guardar video como..."
+Presiona `S` en cualquier sketch para grabar:
 
-### Convertir a MP4
+1. El sketch espera al inicio del siguiente loop
+2. Graba la duración configurada directamente a `.webm`
+3. Se abre una nueva pestaña con el video
+4. Descarga con el botón o clic derecho → "Guardar video como..."
+
+### Convertir a MP4 (opcional)
+
+Si necesitas formato MP4:
 
 ```bash
+# Usando el script incluido
+npm run convert ~/Downloads/loop_xxxxx.webm
+
+# O manualmente con FFmpeg
 ffmpeg -i loop.webm -c:v libx264 loop.mp4
 ```
+
+> **Nota**: FFmpeg solo es necesario si quieres convertir a MP4. Instalar con `brew install ffmpeg`
 
 ---
 
