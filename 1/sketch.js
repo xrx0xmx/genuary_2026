@@ -16,6 +16,9 @@ const CANVAS_SIZE = 800;  // Tamaño del canvas (cuadrado)
 // Ej: 5 = la animación hace 5 vueltas en 20 segundos (como si fuera 4s por vuelta)
 const CYCLES = 5;
 
+// HUD visibility
+let showHUD = true;
+
 // Obtener hue desde URL (?hue=120) o usar valor por defecto
 function getInitialHue() {
   const params = new URLSearchParams(window.location.search);
@@ -210,6 +213,12 @@ const sketch = (p) => {
       const newHue = p.random(360);
       regenerateColors(newHue);
       console.log(`🎨 Nuevo color: Hue ${Math.round(newHue)}°`);
+    }
+    
+    // D: Toggle HUD
+    if (p.key === 'd' || p.key === 'D') {
+      showHUD = !showHUD;
+      console.log(`🖥️ HUD: ${showHUD ? 'ON' : 'OFF'}`);
     }
     
     // S: Grabar loop
