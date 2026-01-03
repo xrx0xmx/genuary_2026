@@ -95,6 +95,58 @@ Un sketch minimalista que explora variaciones de un círculo azul con movimiento
 
 ---
 
+## Día 3: Fibonacci forever
+
+**Prompt**: Crea una obra que use la secuencia de Fibonacci de alguna manera
+
+Un bosque orgánico donde cada árbol crece siguiendo patrones basados en la sucesión de Fibonacci. Las ramas se ramifican con probabilidades determinadas por los números de Fibonacci, creando estructuras naturales y únicas.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `Espacio` / `R` | Reiniciar el bosque |
+| `D` | Toggle HUD (información) |
+| `S` | Grabar el proceso de crecimiento |
+
+### Características
+
+- **Crecimiento orgánico**: Las ramas crecen gradualmente con animación
+- **Probabilidad Fibonacci**: La ramificación sigue la secuencia de Fibonacci
+- **Paleta natural**: Gradiente de colores joven → maduro → viejo
+- **Partículas ambientales**: Esporas/polen flotando en el ambiente
+- **Generación procedural**: Cada bosque es único
+
+---
+
+## Día 4: Lowres
+
+**Prompt**: Una imagen o gráfico de baja resolución, donde los detalles se simplifican o pixelan
+
+Píxeles como partículas inteligentes — Cada píxel de una imagen se convierte en una partícula autónoma que conserva su color original pero se comporta de forma dinámica y reactiva.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `D` | Toggle HUD (información) |
+| `R` | Reiniciar con imagen por defecto |
+| `+` / `-` | Aumentar/disminuir resolución del grid |
+| `1` / `2` / `3` | Intensidad de repulsión (suave/media/fuerte) |
+| `S` | Grabar video |
+| **Drag & Drop** | Arrastra una imagen para cargarla |
+
+### Características
+
+- **Carga de imagen**: Soporta JPG, PNG, GIF
+- **Grid lowres**: Resolución ajustable (10-80 celdas)
+- **Ruido Perlin**: Movimiento orgánico constante
+- **Repulsión del cursor**: Las partículas huyen del cursor
+- **Física suave**: Retorno gradual a posición original
+- **Estética pixelada**: Sin suavizado, píxeles puros
+
+---
+
 ## Grabación de loops
 
 La grabación usa **MediaRecorder API** del navegador (no requiere software externo).
@@ -135,9 +187,18 @@ genuary_2026/
 │   ├── index.html
 │   ├── sketch.js
 │   └── prompt.txt
+├── 3/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
+├── 4/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
 ├── shared/
 │   ├── loop.js         # Utilidades para loops perfectos
-│   └── recorder.js     # Sistema de grabación
+│   ├── recorder.js     # Sistema de grabación
+│   └── dr_tapiz.jpeg   # Imagen de ejemplo para día 4
 ├── scripts/
 │   ├── dev.js
 │   ├── new-day.js
@@ -184,7 +245,9 @@ easing.pingPong(t)      // Ida y vuelta
 |-----|--------|--------|
 | 1 | One color, one shape | ✅ |
 | 2 | Twelve principles of animation | ✅ |
-| 3 | ... | ⏳ |
+| 3 | Fibonacci forever | ✅ |
+| 4 | Lowres | ✅ |
+| 5 | ... | ⏳ |
 
 ---
 
