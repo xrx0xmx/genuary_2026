@@ -241,6 +241,10 @@
         y = e.clientY - tooltipRect.height - padding;
       }
       
+      // Asegurar que no se salga por la izquierda ni por arriba
+      x = Math.max(padding, x);
+      y = Math.max(padding, y);
+      
       tooltip.style.left = `${x}px`;
       tooltip.style.top = `${y}px`;
     }
