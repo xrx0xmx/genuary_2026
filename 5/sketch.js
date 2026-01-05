@@ -250,6 +250,9 @@ const sketch = (p) => {
   };
 
   function initInkBuffer() {
+    // Asegurar que brush dibuja en inkBuffer
+    brush.load(inkBuffer);
+    
     // Fondo de papel en el buffer
     inkBuffer.background(PAPER_COLOR[0], PAPER_COLOR[1], PAPER_COLOR[2]);
     
@@ -268,6 +271,9 @@ const sketch = (p) => {
     const letter = WORD[area.letterIndex];
     const path = LETTER_PATHS[letter];
     if (!path) return;
+    
+    // Asegurar que brush dibuja en inkBuffer
+    brush.load(inkBuffer);
     
     // Coordenadas en sistema WEBGL (centro en 0,0)
     const centerX = area.x + area.w / 2 - CANVAS_SIZE / 2;
