@@ -279,8 +279,20 @@ const sketch = (p) => {
     const cos = Math.cos(area.rotation);
     const sin = Math.sin(area.rotation);
     
-    // Configurar el pincel
+    // Convertir color hex a RGB para poder aplicar opacidad
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 26, g: 20, b: 16 };
+    };
+    const rgb = hexToRgb(CONFIG.color);
+    
+    // Configurar el pincel con opacidad
     brush.set(CONFIG.brushType, CONFIG.color, CONFIG.weight);
+    brush.stroke(rgb.r, rgb.g, rgb.b, CONFIG.opacity);
     
     // Dibujar líneas entre puntos consecutivos
     const numSegments = 50;
