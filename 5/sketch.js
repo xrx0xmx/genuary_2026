@@ -418,6 +418,14 @@ const sketch = (p) => {
       if (drawProgress >= 1) {
         currentState = STATE_IDLE;
         drawingAreaIndex = -1;
+        
+        // Si era la última letra y hay grabación en curso, detenerla
+        if (nextLetterIndex >= WORD.length && window.isRecording?.()) {
+          setTimeout(() => {
+            window.stopRecording();
+            console.log('🎬 Grabación detenida: palabra completa');
+          }, 500); // Pequeña pausa para capturar el último frame
+        }
       }
     }
     
