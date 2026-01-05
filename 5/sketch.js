@@ -1,9 +1,10 @@
 import p5 from 'p5';
+import * as brush from 'p5.brush';
 import { setupRecorder } from '../shared/recorder.js';
 
 // Genuary 2026 - Día 5
 // Prompt: Write "Genuary". Avoid using a font.
-// Interacción: dibujar rectángulos con rotación donde se pintarán las letras
+// Versión con p5.brush para trazos naturales
 
 // ============================================
 // CONFIGURACIÓN
@@ -11,92 +12,102 @@ import { setupRecorder } from '../shared/recorder.js';
 const FPS = 60;
 const CANVAS_SIZE = 800;
 
-const INK_COLOR = [25, 20, 15];
+// Fuente para UI (se carga en preload)
+let uiFont;
+
 const PAPER_COLOR = [248, 244, 235];
-const BASE_STROKE_WIDTH = 16;
-const JITTER_AMPLITUDE = 1.0;
 
 const WORD = "Genuary";
 
-// Configuración del control de rotación
-const ROTATION_HANDLE_DISTANCE = 30; // Distancia del asa desde la esquina
-const ROTATION_HANDLE_SIZE = 10;     // Tamaño del círculo del asa
+// ============================================
+// CONFIGURACIÓN DEL PINCEL (ajustable con teclas)
+// ============================================
+const CONFIG = {
+  brushType: 'charcoal',  // Tipo de pincel actual
+  weight: 1.0,            // Multiplicador de grosor
+  color: '#1a1410',       // Color del trazo (negro cálido)
+  vibration: 1.0,         // Factor de vibración
+  opacity: 180,           // Opacidad (0-255)
+};
+
+// Lista de pinceles disponibles
+const BRUSH_TYPES = ['pen', 'rotring', 'marker', 'charcoal', '2B', 'HB', 'spray', 'cpencil', 'marker2'];
 
 // ============================================
 // TRAYECTORIAS DE CADA LETRA (normalizadas 0-1)
 // ============================================
 const LETTER_PATHS = {
   G: [
-    { x: 0.75, y: 0.25, pressure: 0.6 },
-    { x: 0.6, y: 0.15, pressure: 0.8 },
-    { x: 0.35, y: 0.15, pressure: 1.0 },
-    { x: 0.15, y: 0.3, pressure: 1.2 },
-    { x: 0.1, y: 0.5, pressure: 1.3 },
-    { x: 0.15, y: 0.7, pressure: 1.2 },
-    { x: 0.35, y: 0.85, pressure: 1.0 },
-    { x: 0.6, y: 0.85, pressure: 0.9 },
-    { x: 0.75, y: 0.7, pressure: 0.8 },
-    { x: 0.7, y: 0.5, pressure: 0.7 },
-    { x: 0.5, y: 0.5, pressure: 0.6 },
+    { x: 0.75, y: 0.25, p: 0.6 },
+    { x: 0.6, y: 0.15, p: 0.8 },
+    { x: 0.35, y: 0.15, p: 1.0 },
+    { x: 0.15, y: 0.3, p: 1.2 },
+    { x: 0.1, y: 0.5, p: 1.3 },
+    { x: 0.15, y: 0.7, p: 1.2 },
+    { x: 0.35, y: 0.85, p: 1.0 },
+    { x: 0.6, y: 0.85, p: 0.9 },
+    { x: 0.75, y: 0.7, p: 0.8 },
+    { x: 0.7, y: 0.5, p: 0.7 },
+    { x: 0.5, y: 0.5, p: 0.6 },
   ],
   e: [
-    { x: 0.2, y: 0.5, pressure: 0.6 },
-    { x: 0.5, y: 0.35, pressure: 0.9 },
-    { x: 0.8, y: 0.45, pressure: 1.0 },
-    { x: 0.75, y: 0.5, pressure: 0.9 },
-    { x: 0.2, y: 0.5, pressure: 0.8 },
-    { x: 0.15, y: 0.65, pressure: 1.0 },
-    { x: 0.25, y: 0.85, pressure: 1.1 },
-    { x: 0.55, y: 0.88, pressure: 0.9 },
-    { x: 0.8, y: 0.78, pressure: 0.7 },
+    { x: 0.2, y: 0.5, p: 0.6 },
+    { x: 0.5, y: 0.35, p: 0.9 },
+    { x: 0.8, y: 0.45, p: 1.0 },
+    { x: 0.75, y: 0.5, p: 0.9 },
+    { x: 0.2, y: 0.5, p: 0.8 },
+    { x: 0.15, y: 0.65, p: 1.0 },
+    { x: 0.25, y: 0.85, p: 1.1 },
+    { x: 0.55, y: 0.88, p: 0.9 },
+    { x: 0.8, y: 0.78, p: 0.7 },
   ],
   n: [
-    { x: 0.2, y: 0.85, pressure: 0.7 },
-    { x: 0.2, y: 0.45, pressure: 1.0 },
-    { x: 0.25, y: 0.35, pressure: 1.1 },
-    { x: 0.45, y: 0.3, pressure: 1.0 },
-    { x: 0.65, y: 0.4, pressure: 0.9 },
-    { x: 0.75, y: 0.55, pressure: 0.85 },
-    { x: 0.8, y: 0.85, pressure: 0.7 },
+    { x: 0.2, y: 0.85, p: 0.7 },
+    { x: 0.2, y: 0.45, p: 1.0 },
+    { x: 0.25, y: 0.35, p: 1.1 },
+    { x: 0.45, y: 0.3, p: 1.0 },
+    { x: 0.65, y: 0.4, p: 0.9 },
+    { x: 0.75, y: 0.55, p: 0.85 },
+    { x: 0.8, y: 0.85, p: 0.7 },
   ],
   u: [
-    { x: 0.2, y: 0.35, pressure: 0.7 },
-    { x: 0.2, y: 0.65, pressure: 0.9 },
-    { x: 0.3, y: 0.85, pressure: 1.1 },
-    { x: 0.5, y: 0.88, pressure: 1.0 },
-    { x: 0.7, y: 0.8, pressure: 0.9 },
-    { x: 0.8, y: 0.6, pressure: 0.8 },
-    { x: 0.8, y: 0.35, pressure: 0.7 },
-    { x: 0.8, y: 0.85, pressure: 0.6 },
+    { x: 0.2, y: 0.35, p: 0.7 },
+    { x: 0.2, y: 0.65, p: 0.9 },
+    { x: 0.3, y: 0.85, p: 1.1 },
+    { x: 0.5, y: 0.88, p: 1.0 },
+    { x: 0.7, y: 0.8, p: 0.9 },
+    { x: 0.8, y: 0.6, p: 0.8 },
+    { x: 0.8, y: 0.35, p: 0.7 },
+    { x: 0.8, y: 0.85, p: 0.6 },
   ],
   a: [
-    { x: 0.7, y: 0.5, pressure: 0.6 },
-    { x: 0.5, y: 0.35, pressure: 0.8 },
-    { x: 0.3, y: 0.38, pressure: 1.0 },
-    { x: 0.2, y: 0.55, pressure: 1.1 },
-    { x: 0.25, y: 0.75, pressure: 1.0 },
-    { x: 0.45, y: 0.88, pressure: 0.9 },
-    { x: 0.7, y: 0.8, pressure: 0.8 },
-    { x: 0.75, y: 0.55, pressure: 0.9 },
-    { x: 0.75, y: 0.85, pressure: 0.7 },
+    { x: 0.7, y: 0.5, p: 0.6 },
+    { x: 0.5, y: 0.35, p: 0.8 },
+    { x: 0.3, y: 0.38, p: 1.0 },
+    { x: 0.2, y: 0.55, p: 1.1 },
+    { x: 0.25, y: 0.75, p: 1.0 },
+    { x: 0.45, y: 0.88, p: 0.9 },
+    { x: 0.7, y: 0.8, p: 0.8 },
+    { x: 0.75, y: 0.55, p: 0.9 },
+    { x: 0.75, y: 0.85, p: 0.7 },
   ],
   r: [
-    { x: 0.25, y: 0.85, pressure: 0.6 },
-    { x: 0.25, y: 0.5, pressure: 1.0 },
-    { x: 0.3, y: 0.38, pressure: 1.1 },
-    { x: 0.5, y: 0.32, pressure: 0.9 },
-    { x: 0.7, y: 0.38, pressure: 0.7 },
+    { x: 0.25, y: 0.85, p: 0.6 },
+    { x: 0.25, y: 0.5, p: 1.0 },
+    { x: 0.3, y: 0.38, p: 1.1 },
+    { x: 0.5, y: 0.32, p: 0.9 },
+    { x: 0.7, y: 0.38, p: 0.7 },
   ],
   y: [
-    { x: 0.2, y: 0.35, pressure: 0.6 },
-    { x: 0.35, y: 0.55, pressure: 0.9 },
-    { x: 0.5, y: 0.65, pressure: 1.0 },
-    { x: 0.65, y: 0.55, pressure: 0.9 },
-    { x: 0.8, y: 0.35, pressure: 0.7 },
-    { x: 0.5, y: 0.65, pressure: 0.6 },
-    { x: 0.4, y: 0.8, pressure: 0.8 },
-    { x: 0.25, y: 0.95, pressure: 1.0 },
-    { x: 0.15, y: 0.92, pressure: 0.5 },
+    { x: 0.2, y: 0.35, p: 0.6 },
+    { x: 0.35, y: 0.55, p: 0.9 },
+    { x: 0.5, y: 0.65, p: 1.0 },
+    { x: 0.65, y: 0.55, p: 0.9 },
+    { x: 0.8, y: 0.35, p: 0.7 },
+    { x: 0.5, y: 0.65, p: 0.6 },
+    { x: 0.4, y: 0.8, p: 0.8 },
+    { x: 0.25, y: 0.95, p: 1.0 },
+    { x: 0.15, y: 0.92, p: 0.5 },
   ],
 };
 
@@ -116,7 +127,7 @@ function catmullRom(p0, p1, p2, p3, t) {
 
 function getPointOnPath(path, t) {
   const n = path.length;
-  if (n < 2) return { x: 0.5, y: 0.5, pressure: 1 };
+  if (n < 2) return { x: 0.5, y: 0.5, p: 1 };
   
   t = Math.max(0, Math.min(1, t));
   
@@ -129,7 +140,7 @@ function getPointOnPath(path, t) {
     return {
       x: p1.x + (p2.x - p1.x) * frac,
       y: p1.y + (p2.y - p1.y) * frac,
-      pressure: p1.pressure + (p2.pressure - p1.pressure) * frac,
+      p: p1.p + (p2.p - p1.p) * frac,
     };
   }
   
@@ -146,9 +157,8 @@ function getPointOnPath(path, t) {
   return {
     x: catmullRom(path[i0].x, path[i1].x, path[i2].x, path[i3].x, localT),
     y: catmullRom(path[i0].y, path[i1].y, path[i2].y, path[i3].y, localT),
-    pressure: Math.max(0.3, Math.min(1.5, catmullRom(
-      path[i0].pressure, path[i1].pressure,
-      path[i2].pressure, path[i3].pressure, localT
+    p: Math.max(0.3, Math.min(1.5, catmullRom(
+      path[i0].p, path[i1].p, path[i2].p, path[i3].p, localT
     ))),
   };
 }
@@ -158,13 +168,21 @@ function getPointOnPath(path, t) {
 // ============================================
 
 const sketch = (p) => {
-  let paperBuffer;
+  // Registrar p5.brush para modo instancia
+  brush.instance(p);
+  
+  // Buffer para los trazos de p5.brush (persistente)
   let inkBuffer;
   
-  // Áreas definidas (rectángulos donde van las letras)
-  let letterAreas = [];  // { x, y, w, h, rotation, letterIndex }
+  // Áreas definidas
+  let letterAreas = [];
   
-  // Estados de interacción
+  // Cargar fuente para UI en WEBGL
+  p.preload = () => {
+    uiFont = p.loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceSansPro-Regular.otf');
+  };
+  
+  // Estados
   const STATE_IDLE = 'idle';
   const STATE_DRAGGING = 'dragging';
   const STATE_ROTATING = 'rotating';
@@ -172,214 +190,176 @@ const sketch = (p) => {
   
   let currentState = STATE_IDLE;
   
-  // Estado de arrastre para crear área
+  // Arrastre
   let dragStartX = 0;
   let dragStartY = 0;
   let dragCurrentX = 0;
   let dragCurrentY = 0;
   
-  // Estado de rotación
-  let pendingArea = null;  // Área pendiente de confirmar { x, y, w, h, rotation }
+  // Rotación
+  let pendingArea = null;
   let isRotating = false;
+  const ROTATION_HANDLE_DISTANCE = 30;
+  const ROTATION_HANDLE_SIZE = 10;
   
-  // Índice de la próxima letra a colocar
+  // Letras
   let nextLetterIndex = 0;
   
-  // Animación de dibujo
+  // Animación
   let drawingAreaIndex = -1;
   let drawProgress = 0;
   let lastDrawProgress = 0;
   
-  // Para línea discontinua animada
+  // UI
   let dashOffset = 0;
+  let showConfig = true;
+  
+  // Cola de letras para dibujar
+  let pendingLetterDraw = null;
 
   p.setup = () => {
-    p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    // WEBGL requerido por p5.brush
+    p.createCanvas(CANVAS_SIZE, CANVAS_SIZE, p.WEBGL);
     p.frameRate(FPS);
     
-    paperBuffer = p.createGraphics(CANVAS_SIZE, CANVAS_SIZE);
-    inkBuffer = p.createGraphics(CANVAS_SIZE, CANVAS_SIZE);
+    // Crear buffer para los trazos (también en WEBGL)
+    inkBuffer = p.createGraphics(CANVAS_SIZE, CANVAS_SIZE, p.WEBGL);
     
-    generatePaperTexture(paperBuffer);
-    inkBuffer.clear();
+    // Inicializar p5.brush en el buffer de tinta
+    brush.load(inkBuffer);
+    
+    // Preparar el fondo del buffer
+    initInkBuffer();
+    
+    // Configurar fuente para texto UI
+    if (uiFont) {
+      p.textFont(uiFont);
+    }
     
     setupRecorder(p, 10, FPS);
     
-    console.log('🖋️ Día 5: Escritura Gestural con Rotación');
-    console.log('🖱️ Click + arrastra para definir el área');
-    console.log('🔄 Arrastra el asa circular para rotar');
-    console.log('✓ Click dentro del área o Enter para confirmar');
-    console.log(`📝 Palabra: "${WORD}" (${WORD.length} letras)`);
-    console.log('⌨️ R = reiniciar, Esc = cancelar rotación');
+    console.log('🖋️ Día 5: Escritura Gestural con p5.brush');
+    console.log('🎨 Teclas de configuración:');
+    console.log('   1-9: Cambiar tipo de pincel');
+    console.log('   +/-: Ajustar grosor');
+    console.log('   [/]: Ajustar vibración');
+    console.log('   O/o: Ajustar opacidad');
+    console.log('   H: Mostrar/ocultar configuración');
+    console.log('   R: Reiniciar');
   };
 
-  function generatePaperTexture(buffer) {
-    buffer.background(PAPER_COLOR[0], PAPER_COLOR[1], PAPER_COLOR[2]);
-    buffer.loadPixels();
+  function initInkBuffer() {
+    // Fondo de papel en el buffer
+    inkBuffer.background(PAPER_COLOR[0], PAPER_COLOR[1], PAPER_COLOR[2]);
     
-    p.noiseSeed(1234);
-    p.randomSeed(5678);
-    
-    for (let y = 0; y < CANVAS_SIZE; y++) {
-      for (let x = 0; x < CANVAS_SIZE; x++) {
-        const idx = (y * CANVAS_SIZE + x) * 4;
-        const noiseVal = (p.noise(x * 0.015, y * 0.015) - 0.5) * 12;
-        const fineNoise = (p.random() - 0.5) * 6;
-        const variation = noiseVal + fineNoise;
-        
-        buffer.pixels[idx] = Math.max(220, Math.min(255, PAPER_COLOR[0] + variation));
-        buffer.pixels[idx + 1] = Math.max(215, Math.min(252, PAPER_COLOR[1] + variation * 0.9));
-        buffer.pixels[idx + 2] = Math.max(205, Math.min(245, PAPER_COLOR[2] + variation * 0.8));
-        buffer.pixels[idx + 3] = 255;
-      }
+    // Añadir textura de papel con p5.brush
+    brush.noStroke();
+    for (let i = 0; i < 300; i++) {
+      const x = p.random(-CANVAS_SIZE/2, CANVAS_SIZE/2);
+      const y = p.random(-CANVAS_SIZE/2, CANVAS_SIZE/2);
+      brush.fill(PAPER_COLOR[0] - 10, PAPER_COLOR[1] - 8, PAPER_COLOR[2] - 5, 15);
+      brush.circle(x, y, p.random(2, 8));
     }
-    buffer.updatePixels();
+    brush.reDraw();
   }
 
-  function drawInkPoint(buffer, x, y, pressure, angle, noiseOffset) {
-    const baseSize = BASE_STROKE_WIDTH * pressure;
-    const passes = 5;
-    
-    for (let pass = 0; pass < passes; pass++) {
-      const perpAngle = angle + Math.PI / 2;
-      const spreadAmount = (pass - passes / 2) * (baseSize * 0.2);
-      const spreadX = Math.cos(perpAngle) * spreadAmount;
-      const spreadY = Math.sin(perpAngle) * spreadAmount;
-      
-      const jitterX = (p.noise(noiseOffset, pass * 10) - 0.5) * JITTER_AMPLITUDE * 2.5;
-      const jitterY = (p.noise(noiseOffset + 100, pass * 10) - 0.5) * JITTER_AMPLITUDE * 2.5;
-      
-      const finalX = x + spreadX + jitterX;
-      const finalY = y + spreadY + jitterY;
-      
-      const sizeVariation = 1 + (p.noise(noiseOffset + pass * 50) - 0.5) * 0.35;
-      const size = baseSize * sizeVariation * (1 - pass * 0.1);
-      
-      const baseOpacity = 0.18 + pressure * 0.12;
-      const opacity = baseOpacity * (1 - pass * 0.12);
-      
-      const colorVar = (p.noise(noiseOffset + 200) - 0.5) * 10;
-      buffer.noStroke();
-      buffer.fill(
-        INK_COLOR[0] + colorVar,
-        INK_COLOR[1] + colorVar * 0.8,
-        INK_COLOR[2] + colorVar * 0.6,
-        opacity * 255
-      );
-      
-      buffer.push();
-      buffer.translate(finalX, finalY);
-      buffer.rotate(angle + (p.noise(noiseOffset + 300) - 0.5) * 0.25);
-      const stretch = 1.2 + pressure * 0.25;
-      buffer.ellipse(0, 0, size * stretch, size / stretch * 0.9);
-      buffer.pop();
-    }
-  }
-
-  function drawLetterInArea(area, fromT, toT) {
+  function drawLetterWithBrush(area) {
     const letter = WORD[area.letterIndex];
     const path = LETTER_PATHS[letter];
     if (!path) return;
     
-    const centerX = area.x + area.w / 2;
-    const centerY = area.y + area.h / 2;
+    // Coordenadas en sistema WEBGL (centro en 0,0)
+    const centerX = area.x + area.w / 2 - CANVAS_SIZE / 2;
+    const centerY = area.y + area.h / 2 - CANVAS_SIZE / 2;
     const padding = Math.min(area.w, area.h) * 0.1;
     const innerW = area.w - padding * 2;
     const innerH = area.h - padding * 2;
     
-    const steps = Math.ceil((toT - fromT) * 150);
+    const cos = Math.cos(area.rotation);
+    const sin = Math.sin(area.rotation);
     
-    for (let i = 0; i <= steps; i++) {
-      const t = fromT + (toT - fromT) * (i / steps);
-      const point = getPointOnPath(path, t);
+    // Configurar el pincel
+    brush.set(CONFIG.brushType, CONFIG.color, CONFIG.weight);
+    
+    // Dibujar líneas entre puntos consecutivos
+    const numSegments = 50;
+    
+    for (let i = 0; i < numSegments; i++) {
+      const t1 = i / numSegments;
+      const t2 = (i + 1) / numSegments;
       
-      // Posición local (centrada en origen)
-      const localX = (point.x - 0.5) * innerW;
-      const localY = (point.y - 0.5) * innerH;
+      const p1 = getPointOnPath(path, t1);
+      const p2 = getPointOnPath(path, t2);
       
-      // Aplicar rotación
-      const cos = Math.cos(area.rotation);
-      const sin = Math.sin(area.rotation);
-      const rotatedX = localX * cos - localY * sin;
-      const rotatedY = localX * sin + localY * cos;
+      // Posición local y rotada
+      const localX1 = (p1.x - 0.5) * innerW;
+      const localY1 = (p1.y - 0.5) * innerH;
+      const x1 = centerX + (localX1 * cos - localY1 * sin);
+      const y1 = centerY + (localX1 * sin + localY1 * cos);
       
-      // Posición final
-      const x = centerX + rotatedX;
-      const y = centerY + rotatedY;
+      const localX2 = (p2.x - 0.5) * innerW;
+      const localY2 = (p2.y - 0.5) * innerH;
+      const x2 = centerX + (localX2 * cos - localY2 * sin);
+      const y2 = centerY + (localX2 * sin + localY2 * cos);
       
-      // Calcular ángulo del trazo (también rotado)
-      const nextT = Math.min(1, t + 0.02);
-      const nextPoint = getPointOnPath(path, nextT);
-      const nextLocalX = (nextPoint.x - 0.5) * innerW;
-      const nextLocalY = (nextPoint.y - 0.5) * innerH;
-      const nextRotatedX = nextLocalX * cos - nextLocalY * sin;
-      const nextRotatedY = nextLocalX * sin + nextLocalY * cos;
-      const nextX = centerX + nextRotatedX;
-      const nextY = centerY + nextRotatedY;
-      const strokeAngle = Math.atan2(nextY - y, nextX - x);
+      // Ajustar grosor según presión
+      const avgPressure = (p1.p + p2.p) / 2;
+      brush.strokeWeight(CONFIG.weight * avgPressure * CONFIG.vibration);
       
-      const noiseOffset = t * 500 + area.letterIndex * 1000;
-      
-      const driftX = (p.noise(area.letterIndex * 0.1, t) - 0.5) * 2;
-      const driftY = (p.noise(area.letterIndex * 0.1 + 50, t) - 0.5) * 2;
-      
-      const sizeScale = Math.min(area.w, area.h) / 150;
-      const adjustedPressure = point.pressure * Math.max(0.5, Math.min(1.5, sizeScale));
-      
-      drawInkPoint(inkBuffer, x + driftX, y + driftY, adjustedPressure, strokeAngle, noiseOffset);
+      // Dibujar línea
+      brush.line(x1, y1, x2, y2);
     }
+    
+    // Forzar renderizado
+    brush.reDraw();
   }
 
   // Obtener las 4 esquinas del rectángulo rotado
   function getRotatedCorners(area) {
-    const cx = area.x + area.w / 2;
-    const cy = area.y + area.h / 2;
+    const cx = area.x + area.w / 2 - CANVAS_SIZE / 2;
+    const cy = area.y + area.h / 2 - CANVAS_SIZE / 2;
     const hw = area.w / 2;
     const hh = area.h / 2;
     const cos = Math.cos(area.rotation);
     const sin = Math.sin(area.rotation);
     
     return [
-      { x: cx + (-hw * cos - -hh * sin), y: cy + (-hw * sin + -hh * cos) }, // top-left
-      { x: cx + (hw * cos - -hh * sin), y: cy + (hw * sin + -hh * cos) },   // top-right
-      { x: cx + (hw * cos - hh * sin), y: cy + (hw * sin + hh * cos) },     // bottom-right
-      { x: cx + (-hw * cos - hh * sin), y: cy + (-hw * sin + hh * cos) },   // bottom-left
+      { x: cx + (-hw * cos - -hh * sin), y: cy + (-hw * sin + -hh * cos) },
+      { x: cx + (hw * cos - -hh * sin), y: cy + (hw * sin + -hh * cos) },
+      { x: cx + (hw * cos - hh * sin), y: cy + (hw * sin + hh * cos) },
+      { x: cx + (-hw * cos - hh * sin), y: cy + (-hw * sin + hh * cos) },
     ];
   }
 
-  // Obtener posición del asa de rotación (fuera de la esquina superior derecha)
   function getRotationHandle(area) {
     const corners = getRotatedCorners(area);
     const topRight = corners[1];
-    const cx = area.x + area.w / 2;
-    const cy = area.y + area.h / 2;
+    const cx = area.x + area.w / 2 - CANVAS_SIZE / 2;
+    const cy = area.y + area.h / 2 - CANVAS_SIZE / 2;
     
-    // Dirección desde el centro hacia la esquina superior derecha
     const dx = topRight.x - cx;
     const dy = topRight.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy);
     
-    // Extender más allá de la esquina
     return {
       x: topRight.x + (dx / dist) * ROTATION_HANDLE_DISTANCE,
       y: topRight.y + (dy / dist) * ROTATION_HANDLE_DISTANCE,
     };
   }
 
-  // Verificar si el mouse está sobre el asa de rotación
   function isOverRotationHandle(mx, my, area) {
     const handle = getRotationHandle(area);
-    const dx = mx - handle.x;
-    const dy = my - handle.y;
-    return Math.sqrt(dx * dx + dy * dy) < ROTATION_HANDLE_SIZE + 5;
+    const webglX = mx - CANVAS_SIZE / 2;
+    const webglY = my - CANVAS_SIZE / 2;
+    const dx = webglX - handle.x;
+    const dy = webglY - handle.y;
+    return Math.sqrt(dx * dx + dy * dy) < ROTATION_HANDLE_SIZE + 8;
   }
 
-  // Verificar si el mouse está dentro del área rotada
   function isInsideRotatedArea(mx, my, area) {
     const cx = area.x + area.w / 2;
     const cy = area.y + area.h / 2;
     
-    // Transformar punto al espacio local (sin rotación)
     const dx = mx - cx;
     const dy = my - cy;
     const cos = Math.cos(-area.rotation);
@@ -393,14 +373,27 @@ const sketch = (p) => {
   p.draw = () => {
     dashOffset += 0.5;
     
-    // Animar dibujo de letra
+    // Procesar letra pendiente para dibujar
+    if (pendingLetterDraw !== null) {
+      drawLetterWithBrush(letterAreas[pendingLetterDraw]);
+      pendingLetterDraw = null;
+    }
+    
+    // Mostrar el buffer de tinta (con el fondo de papel y los trazos)
+    p.push();
+    p.imageMode(p.CENTER);
+    p.image(inkBuffer, 0, 0);
+    p.pop();
+    
+    // Estado de dibujo (animación)
     if (currentState === STATE_DRAWING && drawingAreaIndex >= 0) {
-      const speed = 0.035;
+      const speed = 0.05;
       drawProgress = Math.min(1, drawProgress + speed);
       
-      if (drawProgress > lastDrawProgress) {
-        drawLetterInArea(letterAreas[drawingAreaIndex], lastDrawProgress, drawProgress);
-        lastDrawProgress = drawProgress;
+      if (drawProgress >= 1 && lastDrawProgress < 1) {
+        // Programar el dibujo de la letra
+        pendingLetterDraw = drawingAreaIndex;
+        lastDrawProgress = 1;
       }
       
       if (drawProgress >= 1) {
@@ -409,97 +402,106 @@ const sketch = (p) => {
       }
     }
     
-    // Componer imagen
-    p.image(paperBuffer, 0, 0);
-    p.image(inkBuffer, 0, 0);
-    
     // Dibujar bordes de áreas existentes
     drawAreaBorders();
     
-    // Dibujar preview del área mientras se arrastra
+    // Preview mientras arrastra
     if (currentState === STATE_DRAGGING) {
       drawDragPreview();
     }
     
-    // Dibujar área pendiente con controles de rotación
+    // Área pendiente con controles
     if (pendingArea) {
       drawPendingAreaWithControls();
     }
     
     // UI
     drawUI();
+    
+    // Panel de configuración
+    if (showConfig) {
+      drawConfigPanel();
+    }
   };
 
   function drawAreaBorders() {
-    // No dibujar bordes si ya se completó la palabra
     if (nextLetterIndex >= WORD.length && currentState !== STATE_DRAWING) {
       return;
     }
     
-    const ctx = p.drawingContext;
+    p.push();
+    p.strokeWeight(1.5);
     
     for (let i = 0; i < letterAreas.length; i++) {
-      const area = letterAreas[i];
-      const corners = getRotatedCorners(area);
+      const corners = getRotatedCorners(letterAreas[i]);
       
-      ctx.save();
-      ctx.setLineDash([8, 6]);
-      ctx.lineDashOffset = -dashOffset;
-      ctx.strokeStyle = 'rgba(80, 60, 40, 0.4)';
-      ctx.lineWidth = 1.5;
+      p.stroke(80, 60, 40, 100);
+      p.noFill();
       
-      ctx.beginPath();
-      ctx.moveTo(corners[0].x, corners[0].y);
-      for (let j = 1; j < corners.length; j++) {
-        ctx.lineTo(corners[j].x, corners[j].y);
+      for (let j = 0; j < corners.length; j++) {
+        const c1 = corners[j];
+        const c2 = corners[(j + 1) % corners.length];
+        drawDashedLine(c1.x, c1.y, c2.x, c2.y, 8, 6);
       }
-      ctx.closePath();
-      ctx.stroke();
-      ctx.restore();
+    }
+    p.pop();
+  }
+
+  function drawDashedLine(x1, y1, x2, y2, dashLen, gapLen) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const unitX = dx / len;
+    const unitY = dy / len;
+    
+    let pos = (dashOffset % (dashLen + gapLen));
+    
+    while (pos < len) {
+      const startPos = pos;
+      const endPos = Math.min(pos + dashLen, len);
+      
+      if (endPos > startPos) {
+        p.line(
+          x1 + unitX * startPos, y1 + unitY * startPos,
+          x1 + unitX * endPos, y1 + unitY * endPos
+        );
+      }
+      pos += dashLen + gapLen;
     }
   }
 
   function drawDragPreview() {
-    const x = Math.min(dragStartX, dragCurrentX);
-    const y = Math.min(dragStartY, dragCurrentY);
+    const x = Math.min(dragStartX, dragCurrentX) - CANVAS_SIZE / 2;
+    const y = Math.min(dragStartY, dragCurrentY) - CANVAS_SIZE / 2;
     const w = Math.abs(dragCurrentX - dragStartX);
     const h = Math.abs(dragCurrentY - dragStartY);
     
     if (w < 5 || h < 5) return;
     
-    const ctx = p.drawingContext;
-    
-    // Fondo semi-transparente
+    p.push();
     p.fill(255, 250, 240, 30);
-    p.noStroke();
+    p.stroke(60, 40, 20, 180);
+    p.strokeWeight(2);
     p.rect(x, y, w, h);
     
-    // Borde discontinuo animado
-    ctx.save();
-    ctx.setLineDash([10, 5]);
-    ctx.lineDashOffset = -dashOffset * 2;
-    ctx.strokeStyle = 'rgba(60, 40, 20, 0.7)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, w, h);
-    ctx.restore();
-    
-    // Mostrar la letra que se dibujará
     if (nextLetterIndex < WORD.length) {
       p.fill(60, 40, 20, 100);
       p.noStroke();
       p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(Math.min(w, h) * 0.6);
+      p.textSize(Math.min(w, h) * 0.5);
       p.text(WORD[nextLetterIndex], x + w / 2, y + h / 2);
     }
+    p.pop();
   }
 
   function drawPendingAreaWithControls() {
     const area = pendingArea;
     const corners = getRotatedCorners(area);
     const handle = getRotationHandle(area);
-    const ctx = p.drawingContext;
     
-    // Fondo semi-transparente
+    p.push();
+    
+    // Fondo
     p.fill(255, 250, 240, 40);
     p.noStroke();
     p.beginShape();
@@ -508,22 +510,17 @@ const sketch = (p) => {
     }
     p.endShape(p.CLOSE);
     
-    // Borde del área (más visible)
-    ctx.save();
-    ctx.setLineDash([10, 5]);
-    ctx.lineDashOffset = -dashOffset * 2;
-    ctx.strokeStyle = 'rgba(40, 100, 180, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(corners[0].x, corners[0].y);
-    for (let j = 1; j < corners.length; j++) {
-      ctx.lineTo(corners[j].x, corners[j].y);
+    // Borde
+    p.stroke(40, 100, 180, 200);
+    p.strokeWeight(2);
+    p.noFill();
+    p.beginShape();
+    for (const corner of corners) {
+      p.vertex(corner.x, corner.y);
     }
-    ctx.closePath();
-    ctx.stroke();
-    ctx.restore();
+    p.endShape(p.CLOSE);
     
-    // Esquinas (pequeños cuadrados)
+    // Esquinas
     p.fill(40, 100, 180);
     p.noStroke();
     for (const corner of corners) {
@@ -531,41 +528,32 @@ const sketch = (p) => {
       p.rect(corner.x, corner.y, 8, 8);
     }
     
-    // Línea hacia el asa de rotación
+    // Línea al asa
     const topRight = corners[1];
     p.stroke(40, 100, 180, 150);
     p.strokeWeight(1.5);
     p.line(topRight.x, topRight.y, handle.x, handle.y);
     
-    // Asa de rotación (círculo)
-    const isHovering = isOverRotationHandle(p.mouseX, p.mouseY, area);
+    // Asa de rotación
+    const webglMouseX = p.mouseX - CANVAS_SIZE / 2;
+    const webglMouseY = p.mouseY - CANVAS_SIZE / 2;
+    const isHovering = Math.sqrt(Math.pow(webglMouseX - handle.x, 2) + Math.pow(webglMouseY - handle.y, 2)) < ROTATION_HANDLE_SIZE + 8;
+    
     if (isHovering || isRotating) {
       p.fill(60, 140, 220);
-      p.stroke(255);
-      p.strokeWeight(2);
     } else {
       p.fill(40, 100, 180);
-      p.stroke(255);
-      p.strokeWeight(1.5);
     }
+    p.stroke(255);
+    p.strokeWeight(2);
     p.ellipse(handle.x, handle.y, ROTATION_HANDLE_SIZE * 2, ROTATION_HANDLE_SIZE * 2);
     
-    // Icono de rotación dentro del asa
-    p.noFill();
-    p.stroke(255);
-    p.strokeWeight(1.5);
-    p.arc(handle.x, handle.y, 10, 10, -p.PI * 0.7, p.PI * 0.5);
-    // Flecha
-    const arrowAngle = p.PI * 0.5;
-    const arrowX = handle.x + Math.cos(arrowAngle) * 5;
-    const arrowY = handle.y + Math.sin(arrowAngle) * 5;
-    p.line(arrowX - 3, arrowY - 2, arrowX, arrowY);
-    p.line(arrowX + 2, arrowY - 3, arrowX, arrowY);
-    
-    // Letra preview (rotada)
+    // Preview de la letra
     if (nextLetterIndex < WORD.length) {
+      const cx = area.x + area.w / 2 - CANVAS_SIZE / 2;
+      const cy = area.y + area.h / 2 - CANVAS_SIZE / 2;
       p.push();
-      p.translate(area.x + area.w / 2, area.y + area.h / 2);
+      p.translate(cx, cy);
       p.rotate(area.rotation);
       p.fill(40, 100, 180, 80);
       p.noStroke();
@@ -576,61 +564,87 @@ const sketch = (p) => {
     }
     
     // Indicador de ángulo
+    const cx = area.x + area.w / 2 - CANVAS_SIZE / 2;
     const degrees = Math.round((area.rotation * 180 / Math.PI) % 360);
     p.fill(40, 100, 180);
     p.noStroke();
     p.textAlign(p.CENTER, p.BOTTOM);
     p.textSize(12);
-    p.text(`${degrees}°`, area.x + area.w / 2, area.y - 10);
+    p.text(`${degrees}°`, cx, area.y - CANVAS_SIZE / 2 - 10);
     
-    // Instrucción
-    p.fill(80, 80, 80, 200);
-    p.textSize(11);
-    p.textAlign(p.CENTER, p.TOP);
-    p.text('Arrastra el ○ para rotar • Click dentro o Enter para confirmar', 
-           area.x + area.w / 2, area.y + area.h + 15);
+    p.pop();
   }
 
   function drawUI() {
+    p.push();
+    p.textAlign(p.LEFT, p.TOP);
+    p.textSize(14);
+    p.noStroke();
+    
+    const topLeft = -CANVAS_SIZE / 2 + 15;
+    
     if (nextLetterIndex >= WORD.length && currentState !== STATE_DRAWING) {
       p.fill(60, 100, 60, 200);
-      p.noStroke();
-      p.textAlign(p.LEFT, p.TOP);
-      p.textSize(14);
-      p.text('✓ Palabra completa', 15, 15);
+      p.text('✓ Palabra completa', topLeft, topLeft);
     } else if (!pendingArea) {
       p.fill(80, 60, 40, 180);
-      p.noStroke();
-      p.textAlign(p.LEFT, p.TOP);
-      p.textSize(14);
-      p.text(`Siguiente: "${WORD[nextLetterIndex]}" (${nextLetterIndex + 1}/${WORD.length})`, 15, 15);
+      p.text(`Siguiente: "${WORD[nextLetterIndex]}" (${nextLetterIndex + 1}/${WORD.length})`, topLeft, topLeft);
     }
+    p.pop();
+  }
+
+  function drawConfigPanel() {
+    p.push();
+    
+    const panelX = CANVAS_SIZE / 2 - 180;
+    const panelY = -CANVAS_SIZE / 2 + 15;
+    const panelW = 165;
+    const panelH = 120;
+    
+    // Fondo del panel
+    p.fill(0, 0, 0, 150);
+    p.noStroke();
+    p.rect(panelX, panelY, panelW, panelH, 6);
+    
+    // Texto
+    p.fill(255, 255, 255, 220);
+    p.textSize(11);
+    p.textAlign(p.LEFT, p.TOP);
+    
+    const brushIndex = BRUSH_TYPES.indexOf(CONFIG.brushType) + 1;
+    
+    p.text(`Pincel: ${CONFIG.brushType} [${brushIndex}]`, panelX + 10, panelY + 10);
+    p.text(`Grosor: ${CONFIG.weight.toFixed(1)} [+/-]`, panelX + 10, panelY + 28);
+    p.text(`Vibración: ${CONFIG.vibration.toFixed(1)} [/]`, panelX + 10, panelY + 46);
+    p.text(`Opacidad: ${CONFIG.opacity} [O/o]`, panelX + 10, panelY + 64);
+    
+    p.fill(200, 200, 200, 150);
+    p.textSize(9);
+    p.text('H: ocultar panel', panelX + 10, panelY + 90);
+    p.text('R: reiniciar', panelX + 10, panelY + 102);
+    
+    p.pop();
   }
 
   p.mousePressed = () => {
     if (nextLetterIndex >= WORD.length) return;
     if (currentState === STATE_DRAWING) return;
     
-    // Si hay área pendiente
     if (pendingArea) {
-      // Verificar si click en asa de rotación
       if (isOverRotationHandle(p.mouseX, p.mouseY, pendingArea)) {
         isRotating = true;
         currentState = STATE_ROTATING;
         return;
       }
       
-      // Verificar si click dentro del área (confirmar)
       if (isInsideRotatedArea(p.mouseX, p.mouseY, pendingArea)) {
         confirmPendingArea();
         return;
       }
       
-      // Click fuera - cancelar y empezar nueva área
       pendingArea = null;
     }
     
-    // Empezar a arrastrar nueva área
     currentState = STATE_DRAGGING;
     dragStartX = p.mouseX;
     dragStartY = p.mouseY;
@@ -643,12 +657,9 @@ const sketch = (p) => {
       dragCurrentX = p.mouseX;
       dragCurrentY = p.mouseY;
     } else if (currentState === STATE_ROTATING && pendingArea) {
-      // Calcular nuevo ángulo basado en la posición del mouse
       const cx = pendingArea.x + pendingArea.w / 2;
       const cy = pendingArea.y + pendingArea.h / 2;
       const angle = Math.atan2(p.mouseY - cy, p.mouseX - cx);
-      
-      // Ajustar para que el asa esté en la dirección correcta
       const baseAngle = Math.atan2(-pendingArea.h / 2, pendingArea.w / 2);
       pendingArea.rotation = angle - baseAngle;
     }
@@ -664,15 +675,12 @@ const sketch = (p) => {
       const h = Math.abs(dragCurrentY - dragStartY);
       
       if (w < 30 || h < 30) {
-        console.log('⚠️ Área demasiado pequeña');
         return;
       }
       
       if (nextLetterIndex >= WORD.length) return;
       
-      // Crear área pendiente (para rotación)
       pendingArea = { x, y, w, h, rotation: 0 };
-      console.log(`📐 Área definida - ajusta la rotación`);
       
     } else if (currentState === STATE_ROTATING) {
       isRotating = false;
@@ -689,9 +697,6 @@ const sketch = (p) => {
     };
     letterAreas.push(newArea);
     
-    console.log(`✓ Letra "${WORD[nextLetterIndex]}" confirmada (${Math.round(newArea.rotation * 180 / Math.PI)}°)`);
-    
-    // Iniciar animación de dibujo
     currentState = STATE_DRAWING;
     drawingAreaIndex = letterAreas.length - 1;
     drawProgress = 0;
@@ -701,27 +706,80 @@ const sketch = (p) => {
     nextLetterIndex++;
   }
 
+  function resetSketch() {
+    letterAreas = [];
+    nextLetterIndex = 0;
+    currentState = STATE_IDLE;
+    drawingAreaIndex = -1;
+    pendingArea = null;
+    isRotating = false;
+    pendingLetterDraw = null;
+    
+    // Reinicializar el buffer de tinta
+    initInkBuffer();
+    
+    console.log('🔄 Reiniciado');
+  }
+
   p.keyPressed = () => {
-    if (p.key === 'r' || p.key === 'R') {
-      inkBuffer.clear();
-      letterAreas = [];
-      nextLetterIndex = 0;
-      currentState = STATE_IDLE;
-      drawingAreaIndex = -1;
-      pendingArea = null;
-      isRotating = false;
-      console.log('🔄 Reiniciado');
+    // Cambiar tipo de pincel (1-9)
+    const num = parseInt(p.key);
+    if (num >= 1 && num <= BRUSH_TYPES.length) {
+      CONFIG.brushType = BRUSH_TYPES[num - 1];
+      console.log(`🖌️ Pincel: ${CONFIG.brushType}`);
     }
     
+    // Ajustar grosor
+    if (p.key === '+' || p.key === '=') {
+      CONFIG.weight = Math.min(5, CONFIG.weight + 0.2);
+      console.log(`📏 Grosor: ${CONFIG.weight.toFixed(1)}`);
+    }
+    if (p.key === '-' || p.key === '_') {
+      CONFIG.weight = Math.max(0.2, CONFIG.weight - 0.2);
+      console.log(`📏 Grosor: ${CONFIG.weight.toFixed(1)}`);
+    }
+    
+    // Ajustar vibración
+    if (p.key === ']') {
+      CONFIG.vibration = Math.min(3, CONFIG.vibration + 0.2);
+      console.log(`〰️ Vibración: ${CONFIG.vibration.toFixed(1)}`);
+    }
+    if (p.key === '[') {
+      CONFIG.vibration = Math.max(0.2, CONFIG.vibration - 0.2);
+      console.log(`〰️ Vibración: ${CONFIG.vibration.toFixed(1)}`);
+    }
+    
+    // Ajustar opacidad
+    if (p.key === 'O') {
+      CONFIG.opacity = Math.min(255, CONFIG.opacity + 20);
+      console.log(`🔆 Opacidad: ${CONFIG.opacity}`);
+    }
+    if (p.key === 'o') {
+      CONFIG.opacity = Math.max(20, CONFIG.opacity - 20);
+      console.log(`🔆 Opacidad: ${CONFIG.opacity}`);
+    }
+    
+    // Mostrar/ocultar config
+    if (p.key === 'h' || p.key === 'H') {
+      showConfig = !showConfig;
+    }
+    
+    // Reiniciar
+    if (p.key === 'r' || p.key === 'R') {
+      resetSketch();
+    }
+    
+    // Confirmar rotación
     if (p.keyCode === p.ENTER && pendingArea) {
       confirmPendingArea();
     }
     
+    // Cancelar
     if (p.keyCode === p.ESCAPE && pendingArea) {
       pendingArea = null;
-      console.log('❌ Rotación cancelada');
     }
     
+    // Grabar
     if (p.key === 's' || p.key === 'S') {
       if (window.startRecording && !window.isRecording?.()) {
         window.startRecording();
