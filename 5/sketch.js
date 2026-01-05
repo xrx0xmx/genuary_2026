@@ -186,6 +186,7 @@ const sketch = (p) => {
   const STATE_IDLE = 'idle';
   const STATE_DRAGGING = 'dragging';
   const STATE_ROTATING = 'rotating';
+  const STATE_MOVING = 'moving';
   const STATE_DRAWING = 'drawing';
   
   let currentState = STATE_IDLE;
@@ -195,6 +196,12 @@ const sketch = (p) => {
   let dragStartY = 0;
   let dragCurrentX = 0;
   let dragCurrentY = 0;
+  
+  // Mover área
+  let moveStartX = 0;
+  let moveStartY = 0;
+  let areaStartX = 0;
+  let areaStartY = 0;
   
   // Rotación
   let pendingArea = null;
@@ -592,12 +599,19 @@ const sketch = (p) => {
     
     // Indicador de ángulo
     const cx = area.x + area.w / 2 - CANVAS_SIZE / 2;
+    const cy = area.y + area.h / 2 - CANVAS_SIZE / 2;
     const degrees = Math.round((area.rotation * 180 / Math.PI) % 360);
     p.fill(40, 100, 180);
     p.noStroke();
     p.textAlign(p.CENTER, p.BOTTOM);
     p.textSize(12);
     p.text(`${degrees}°`, cx, area.y - CANVAS_SIZE / 2 - 10);
+    
+    // Indicador de ayuda
+    p.fill(60, 60, 60, 150);
+    p.textAlign(p.CENTER, p.TOP);
+    p.textSize(10);
+    p.text('Arrastra para mover • Doble click o Enter para confirmar', cx, area.y + area.h - CANVAS_SIZE / 2 + 8);
     
     p.pop();
   }
@@ -665,7 +679,12 @@ const sketch = (p) => {
       }
       
       if (isInsideRotatedArea(p.mouseX, p.mouseY, pendingArea)) {
-        confirmPendingArea();
+        // Iniciar movimiento del área
+        currentState = STATE_MOVING;
+        moveStartX = p.mouseX;
+        moveStartY = p.mouseY;
+        areaStartX = pendingArea.x;
+        areaStartY = pendingArea.y;
         return;
       }
       
@@ -689,6 +708,20 @@ const sketch = (p) => {
       const angle = Math.atan2(p.mouseY - cy, p.mouseX - cx);
       const baseAngle = Math.atan2(-pendingArea.h / 2, pendingArea.w / 2);
       pendingArea.rotation = angle - baseAngle;
+    } else if (currentState === STATE_MOVING && pendingArea) {
+      // Mover el área manteniendo dentro del canvas
+      const dx = p.mouseX - moveStartX;
+      const dy = p.mouseY - moveStartY;
+      
+      let newX = areaStartX + dx;
+      let newY = areaStartY + dy;
+      
+      // Limitar dentro del canvas
+      newX = Math.max(0, Math.min(CANVAS_SIZE - pendingArea.w, newX));
+      newY = Math.max(0, Math.min(CANVAS_SIZE - pendingArea.h, newY));
+      
+      pendingArea.x = newX;
+      pendingArea.y = newY;
     }
   };
 
@@ -712,6 +745,14 @@ const sketch = (p) => {
     } else if (currentState === STATE_ROTATING) {
       isRotating = false;
       currentState = STATE_IDLE;
+    } else if (currentState === STATE_MOVING) {
+      currentState = STATE_IDLE;
+    }
+  };
+
+  p.doubleClicked = () => {
+    if (pendingArea && isInsideRotatedArea(p.mouseX, p.mouseY, pendingArea)) {
+      confirmPendingArea();
     }
   };
 
@@ -741,6 +782,10 @@ const sketch = (p) => {
     pendingArea = null;
     isRotating = false;
     pendingLetterDraw = null;
+    moveStartX = 0;
+    moveStartY = 0;
+    areaStartX = 0;
+    areaStartY = 0;
     
     // Reinicializar el buffer de tinta
     initInkBuffer();
