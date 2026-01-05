@@ -272,7 +272,7 @@ const sketch = (p) => {
     // Coordenadas en sistema WEBGL (centro en 0,0)
     const centerX = area.x + area.w / 2 - CANVAS_SIZE / 2;
     const centerY = area.y + area.h / 2 - CANVAS_SIZE / 2;
-    const padding = Math.min(area.w, area.h) * 0.1;
+    const padding = 5; // 5px de margen en cada borde
     const innerW = area.w - padding * 2;
     const innerH = area.h - padding * 2;
     
