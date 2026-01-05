@@ -147,6 +147,60 @@ Píxeles como partículas inteligentes — Cada píxel de una imagen se conviert
 
 ---
 
+## Día 5: Write "Genuary"
+
+**Prompt**: Escribe "Genuary". Evita usar una fuente
+
+Escritura gestual con p5.brush — La palabra "Genuary" emerge del gesto, no del dibujo explícito de caracteres. El usuario define áreas para cada letra y el sistema las dibuja con trazos naturales simulando pincel sobre papel.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `1-9` | Cambiar tipo de pincel |
+| `+` / `-` | Ajustar grosor |
+| `[` / `]` | Ajustar vibración |
+| `O` / `o` | Ajustar opacidad |
+| `X` | Randomizar parámetros |
+| `H` | Mostrar/ocultar panel de configuración |
+| `R` | Reiniciar |
+| `Enter` | Confirmar área de letra |
+| `Esc` | Cancelar área pendiente |
+| `S` | Grabar |
+
+### Características
+
+- **Trazos naturales**: Usa p5.brush para simular pinceles reales
+- **Áreas rotables**: Define y rota el área de cada letra
+- **Interpolación Catmull-Rom**: Trayectorias suaves entre puntos
+- **Presión variable**: Grosor del trazo varía según el punto
+- **Múltiples pinceles**: pen, rotring, marker, charcoal, 2B, HB, spray, cpencil
+
+---
+
+## Día 6: Lights on/off
+
+**Prompt**: Haz algo que cambie cuando enciendes o apagas las "luces digitales"
+
+Sloth X-Ray Flashlight — Una linterna digital que revela capas ocultas de un perezoso. El círculo de luz sigue el ratón mostrando diferentes capas según la interacción.
+
+### Controles
+
+| Tecla/Acción | Resultado |
+|--------------|-----------|
+| **Mover ratón** | El círculo de luz muestra la segunda capa (sloth_2) |
+| **Clic + mover** | El círculo muestra la tercera capa (sloth_3) |
+| `S` | Grabar (10 segundos) |
+
+### Características
+
+- **3 capas de sloth**: Fondo siempre visible, capas reveladas con interacción
+- **Círculo de luz suave**: Feather gradual en los bordes
+- **Sin capa negra**: La imagen base siempre es visible
+- **Proporción preservada**: Las imágenes mantienen su aspect ratio
+
+---
+
 ## Grabación de loops
 
 La grabación usa **MediaRecorder API** del navegador (no requiere software externo).
@@ -195,10 +249,21 @@ genuary_2026/
 │   ├── index.html
 │   ├── sketch.js
 │   └── prompt.txt
+├── 5/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
+├── 6/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
 ├── shared/
 │   ├── loop.js         # Utilidades para loops perfectos
 │   ├── recorder.js     # Sistema de grabación
-│   └── dr_tapiz.jpeg   # Imagen de ejemplo para día 4
+│   ├── dr_tapiz.jpeg   # Imagen de ejemplo para día 4
+│   ├── sloth_1.png     # Capa 1 del sloth (día 6)
+│   ├── sloth_2.png     # Capa 2 del sloth (día 6)
+│   └── sloth_3.png     # Capa 3 del sloth (día 6)
 ├── scripts/
 │   ├── dev.js
 │   ├── new-day.js
@@ -247,7 +312,9 @@ easing.pingPong(t)      // Ida y vuelta
 | 2 | Twelve principles of animation | ✅ |
 | 3 | Fibonacci forever | ✅ |
 | 4 | Lowres | ✅ |
-| 5 | ... | ⏳ |
+| 5 | Write "Genuary" | ✅ |
+| 6 | Lights on/off | ✅ |
+| 7 | ... | ⏳ |
 
 ---
 
