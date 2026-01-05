@@ -100,29 +100,40 @@ const sketch = (p) => {
     const revealLayer = p.mouseIsPressed ? 2 : 1; // índice 1 = sloth_2, índice 2 = sloth_3
     const revealImg = slothLayers[revealLayer];
     
-    // Dibujar la capa revelada solo dentro del círculo de luz
+    // Dibujar la capa revelada con máscara feathered usando composición
+    // Paso 1: Dibujar la imagen revelada en un área temporal
     p.drawingContext.save();
     
-    // Crear máscara circular con feather
-    const gradient = p.drawingContext.createRadialGradient(
-      p.mouseX, p.mouseY, LIGHT_RADIUS * 0.5,
-      p.mouseX, p.mouseY, LIGHT_RADIUS + FEATHER_SIZE
-    );
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    
-    // Aplicar máscara circular
+    // Recortar al área del círculo (para optimización)
     p.drawingContext.beginPath();
     p.drawingContext.arc(p.mouseX, p.mouseY, LIGHT_RADIUS + FEATHER_SIZE, 0, Math.PI * 2);
     p.drawingContext.closePath();
     p.drawingContext.clip();
     
-    // Dibujar la capa revelada dentro del círculo
+    // Dibujar la capa revelada
     p.push();
     p.tint(255);
     p.image(revealImg, imgDisplayX + imgDisplayW / 2, imgDisplayY + imgDisplayH / 2, imgDisplayW, imgDisplayH);
     p.pop();
+    
+    // Paso 2: Aplicar el feather usando destination-in con gradiente
+    p.drawingContext.globalCompositeOperation = 'destination-in';
+    
+    const gradient = p.drawingContext.createRadialGradient(
+      p.mouseX, p.mouseY, 0,
+      p.mouseX, p.mouseY, LIGHT_RADIUS + FEATHER_SIZE
+    );
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(LIGHT_RADIUS / (LIGHT_RADIUS + FEATHER_SIZE), 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    p.drawingContext.fillStyle = gradient;
+    p.drawingContext.fillRect(
+      p.mouseX - LIGHT_RADIUS - FEATHER_SIZE,
+      p.mouseY - LIGHT_RADIUS - FEATHER_SIZE,
+      (LIGHT_RADIUS + FEATHER_SIZE) * 2,
+      (LIGHT_RADIUS + FEATHER_SIZE) * 2
+    );
     
     p.drawingContext.restore();
   };

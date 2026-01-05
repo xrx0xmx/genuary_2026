@@ -1,4 +1,1 @@
 Write "Genuary". Avoid using a font.
-
-Escritura gestural - simulando el movimiento físico de una mano con pincel sobre papel.
-La palabra emerge del gesto, no del dibujo explícito de caracteres.
