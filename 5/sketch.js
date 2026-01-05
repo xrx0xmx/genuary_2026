@@ -244,6 +244,7 @@ const sketch = (p) => {
     console.log('   +/-: Ajustar grosor');
     console.log('   [/]: Ajustar vibración');
     console.log('   O/o: Ajustar opacidad');
+    console.log('   X: Randomizar parámetros');
     console.log('   H: Mostrar/ocultar configuración');
     console.log('   R: Reiniciar');
   };
@@ -620,7 +621,7 @@ const sketch = (p) => {
     
     p.fill(200, 200, 200, 150);
     p.textSize(9);
-    p.text('H: ocultar panel', panelX + 10, panelY + 90);
+    p.text('X: randomizar | H: ocultar', panelX + 10, panelY + 90);
     p.text('R: reiniciar', panelX + 10, panelY + 102);
     
     p.pop();
@@ -721,6 +722,40 @@ const sketch = (p) => {
     console.log('🔄 Reiniciado');
   }
 
+  function randomizeConfig() {
+    // Randomizar tipo de pincel
+    CONFIG.brushType = BRUSH_TYPES[Math.floor(p.random(BRUSH_TYPES.length))];
+    
+    // Randomizar grosor (0.3 - 3.0)
+    CONFIG.weight = p.random(0.3, 3.0);
+    
+    // Randomizar vibración (0.3 - 2.5)
+    CONFIG.vibration = p.random(0.3, 2.5);
+    
+    // Randomizar opacidad (60 - 255)
+    CONFIG.opacity = Math.floor(p.random(60, 255));
+    
+    // Randomizar color (tonos oscuros cálidos)
+    const colors = [
+      '#1a1410', // negro cálido
+      '#2d1f1a', // marrón oscuro
+      '#1a2433', // azul tinta
+      '#2a1a2a', // púrpura oscuro
+      '#3d2b1f', // sepia
+      '#1a2a1a', // verde bosque
+      '#3a1a1a', // rojo oscuro
+      '#1a1a2d', // azul medianoche
+    ];
+    CONFIG.color = colors[Math.floor(p.random(colors.length))];
+    
+    console.log(`🎲 Randomizado:`);
+    console.log(`   Pincel: ${CONFIG.brushType}`);
+    console.log(`   Grosor: ${CONFIG.weight.toFixed(2)}`);
+    console.log(`   Vibración: ${CONFIG.vibration.toFixed(2)}`);
+    console.log(`   Opacidad: ${CONFIG.opacity}`);
+    console.log(`   Color: ${CONFIG.color}`);
+  }
+
   p.keyPressed = () => {
     // Cambiar tipo de pincel (1-9)
     const num = parseInt(p.key);
@@ -757,6 +792,11 @@ const sketch = (p) => {
     if (p.key === 'o') {
       CONFIG.opacity = Math.max(20, CONFIG.opacity - 20);
       console.log(`🔆 Opacidad: ${CONFIG.opacity}`);
+    }
+    
+    // Randomizar parámetros
+    if (p.key === 'x' || p.key === 'X') {
+      randomizeConfig();
     }
     
     // Mostrar/ocultar config
