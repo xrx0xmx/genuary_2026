@@ -1,0 +1,1 @@
+Lights on/off. Make something that changes when you switch on or off the “digital” lights.

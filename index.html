@@ -182,8 +182,12 @@
       .filter((day) => Number.isFinite(day))
       .sort((a, b) => a - b);
 
-    // Cargar los prompts de cada día disponible
-    const promptFiles = import.meta.glob('./{1..31}/prompt.txt', { as: 'raw', eager: true });
+    // Cargar los prompts de cada día disponible (sintaxis moderna de Vite)
+    const promptFiles = import.meta.glob('./{1..31}/prompt.txt', { 
+      query: '?raw', 
+      import: 'default',
+      eager: true 
+    });
     const prompts = {};
     for (const [path, content] of Object.entries(promptFiles)) {
       const match = path.match(/\.\/(\d+)\/prompt\.txt$/);
@@ -205,7 +209,7 @@
       card.dataset.day = i;
       card.innerHTML = `
         <span>${i}</span>
-        <span class="label">Día</span>
+        <span class="label">Day</span>
       `;
       
       // Eventos para mostrar/ocultar tooltip
@@ -219,7 +223,7 @@
     }
 
     function showTooltip(e, day) {
-      tooltipDayNumber.textContent = `Día ${day}`;
+      tooltipDayNumber.textContent = `Day ${day}`;
       tooltipPromptText.textContent = prompts[day];
       tooltip.classList.add('visible');
       updateTooltipPosition(e);
