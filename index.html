@@ -55,6 +55,7 @@
     }
     
     .day-card {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -90,6 +91,52 @@
       pointer-events: none;
     }
     
+    /* Tooltip para mostrar el prompt */
+    .prompt-tooltip {
+      position: fixed;
+      max-width: 320px;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.98));
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 10px;
+      color: #e8e8e8;
+      font-size: 0.85rem;
+      font-weight: 400;
+      line-height: 1.5;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 107, 107, 0.1);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    
+    .prompt-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .prompt-tooltip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+      border-radius: 10px 10px 0 0;
+    }
+    
+    .prompt-tooltip .day-number {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #feca57;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    
     footer {
       text-align: center;
       margin-top: 3rem;
@@ -118,6 +165,12 @@
     </footer>
   </div>
   
+  <!-- Tooltip flotante para mostrar prompts -->
+  <div class="prompt-tooltip" id="tooltip">
+    <div class="day-number"></div>
+    <div class="prompt-text"></div>
+  </div>
+  
   <script type="module">
     // Descubre automáticamente las carpetas numéricas con index.html
     const dayEntries = import.meta.glob('./{1..31}/index.html', { eager: false });
@@ -129,18 +182,71 @@
       .filter((day) => Number.isFinite(day))
       .sort((a, b) => a - b);
 
+    // Cargar los prompts de cada día disponible
+    const promptFiles = import.meta.glob('./{1..31}/prompt.txt', { as: 'raw', eager: true });
+    const prompts = {};
+    for (const [path, content] of Object.entries(promptFiles)) {
+      const match = path.match(/\.\/(\d+)\/prompt\.txt$/);
+      if (match) {
+        prompts[Number(match[1])] = content.trim();
+      }
+    }
+
     const daysContainer = document.getElementById('days');
+    const tooltip = document.getElementById('tooltip');
+    const tooltipDayNumber = tooltip.querySelector('.day-number');
+    const tooltipPromptText = tooltip.querySelector('.prompt-text');
 
     for (let i = 1; i <= 31; i++) {
       const isAvailable = availableDays.includes(i);
       const card = document.createElement('a');
       card.href = isAvailable ? `/${i}/` : '#';
       card.className = `day-card ${isAvailable ? '' : 'disabled'}`;
+      card.dataset.day = i;
       card.innerHTML = `
         <span>${i}</span>
         <span class="label">Día</span>
       `;
+      
+      // Eventos para mostrar/ocultar tooltip
+      if (isAvailable && prompts[i]) {
+        card.addEventListener('mouseenter', (e) => showTooltip(e, i));
+        card.addEventListener('mousemove', updateTooltipPosition);
+        card.addEventListener('mouseleave', hideTooltip);
+      }
+      
       daysContainer.appendChild(card);
+    }
+
+    function showTooltip(e, day) {
+      tooltipDayNumber.textContent = `Día ${day}`;
+      tooltipPromptText.textContent = prompts[day];
+      tooltip.classList.add('visible');
+      updateTooltipPosition(e);
+    }
+
+    function updateTooltipPosition(e) {
+      const padding = 15;
+      const tooltipRect = tooltip.getBoundingClientRect();
+      let x = e.clientX + padding;
+      let y = e.clientY + padding;
+      
+      // Ajustar si se sale por la derecha
+      if (x + tooltipRect.width > window.innerWidth - padding) {
+        x = e.clientX - tooltipRect.width - padding;
+      }
+      
+      // Ajustar si se sale por abajo
+      if (y + tooltipRect.height > window.innerHeight - padding) {
+        y = e.clientY - tooltipRect.height - padding;
+      }
+      
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y}px`;
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('visible');
     }
   </script>
 </body>
