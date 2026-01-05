@@ -243,7 +243,7 @@ const sketch = (p) => {
       p.textFont(uiFont);
     }
     
-    setupRecorder(p, 10, FPS);
+    setupRecorder(p, 300, FPS); // 5 minutos máx. (se detiene al completar palabra)
     
     console.log('🖋️ Día 5: Escritura Gestural con p5.brush');
     console.log('🎨 Teclas de configuración:');
