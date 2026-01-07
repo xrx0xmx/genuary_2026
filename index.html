@@ -174,14 +174,7 @@
   <script type="module">
     // Descubre automáticamente las carpetas numéricas con index.html
     const dayEntries = import.meta.glob('./{1..31}/index.html', { eager: false });
-    const availableDays = Object.keys(dayEntries)
-      .map((path) => {
-        const match = path.match(/\.\/(\d+)\/index\.html$/);
-        return match ? Number(match[1]) : null;
-      })
-      .filter((day) => Number.isFinite(day))
-      .sort((a, b) => a - b);
-
+    
     // Cargar los prompts de cada día disponible (sintaxis moderna de Vite)
     const promptFiles = import.meta.glob('./{1..31}/prompt.txt', { 
       query: '?raw', 
@@ -195,6 +188,15 @@
         prompts[Number(match[1])] = content.trim();
       }
     }
+
+    // Obtener los días disponibles de las claves del glob
+    const availableDays = Object.keys(dayEntries)
+      .map((path) => {
+        const match = path.match(/\.\/(\d+)\/index\.html$/);
+        return match ? Number(match[1]) : null;
+      })
+      .filter((day) => Number.isFinite(day))
+      .sort((a, b) => a - b);
 
     const daysContainer = document.getElementById('days');
     const tooltip = document.getElementById('tooltip');
