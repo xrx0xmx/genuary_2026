@@ -183,14 +183,21 @@ export function startRecording() {
 
   if (recorderTimeout) {
     clearTimeout(recorderTimeout);
+    recorderTimeout = null;
   }
-  recorderTimeout = setTimeout(() => {
-    if (isRecording) {
-      stopRecording();
-    }
-  }, recorderState.duration * 1000);
 
-  console.log(`🔴 Grabando ${recorderState.duration}s...`);
+  // Si duration > 0, auto-stop después de ese tiempo
+  // Si duration === 0, grabación manual indefinida (hasta llamar stopRecording)
+  if (recorderState.duration > 0) {
+    recorderTimeout = setTimeout(() => {
+      if (isRecording) {
+        stopRecording();
+      }
+    }, recorderState.duration * 1000);
+    console.log(`🔴 Grabando ${recorderState.duration}s...`);
+  } else {
+    console.log(`🔴 Grabando... (pulsa S para detener)`);
+  }
 }
 
 export function stopRecording() {
