@@ -285,53 +285,36 @@ class PolarTypeSystem {
 
   drawBigBrotherEye(p, centerX, centerY) {
     const eyeRadius = 25;
-    const irisRadius = 15;
-    const pupilRadius = 8;
 
     p.push();
     p.translate(centerX, centerY);
 
-    // Globo ocular blanco
-    p.fill(255, 255, 255, 200);
-    p.stroke(0, 0, 0, 100);
-    p.strokeWeight(2);
+    // Anillos concéntricos como HAL 9000
+    // Anillo exterior - Azul oscuro
+    p.fill(0, 50, 150, 200);
+    p.noStroke();
     p.circle(0, 0, eyeRadius * 2);
 
-    // Iris amarillo (vigilante)
-    p.fill(255, 255, 0, 180);
-    p.stroke(200, 150, 0, 150);
-    p.strokeWeight(1);
-    p.circle(0, 0, irisRadius * 2);
+    // Segundo anillo - Rojo oscuro
+    p.fill(150, 0, 0, 220);
+    p.circle(0, 0, eyeRadius * 1.6);
 
-    // Pupila negra (vacía, vigilante)
+    // Tercer anillo - Rojo fuerte
+    p.fill(255, 0, 0, 240);
+    p.circle(0, 0, eyeRadius * 1.2);
+
+    // Centro - Amarillo interior
+    p.fill(255, 255, 0, 255);
+    p.circle(0, 0, eyeRadius * 0.8);
+
+    // Pupila negra en el centro
     p.fill(0, 0, 0, 255);
-    p.noStroke();
-    p.circle(0, 0, pupilRadius * 2);
+    p.circle(0, 0, eyeRadius * 0.4);
 
-    // Brillo/reflejo en el iris (para hacerlo más realista)
-    p.fill(255, 255, 255, 120);
+    // Brillo/reflejo sutil
+    p.fill(255, 255, 255, 150);
     p.noStroke();
-    p.circle(-3, -3, 4);
-
-    // Líneas radiales sutiles del iris (para textura)
-    p.stroke(255, 255, 0, 80);
-    p.strokeWeight(0.5);
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const innerRadius = pupilRadius + 2;
-      const outerRadius = irisRadius - 2;
-      p.line(
-        Math.cos(angle) * innerRadius,
-        Math.sin(angle) * innerRadius,
-        Math.cos(angle) * outerRadius,
-        Math.sin(angle) * outerRadius
-      );
-    }
-
-    // Párpado superior sutil (para dar profundidad)
-    p.fill(0, 0, 0, 30);
-    p.noStroke();
-    p.arc(0, -eyeRadius/2, eyeRadius * 1.8, eyeRadius, Math.PI, Math.PI * 2);
+    p.circle(-3, -3, 3);
 
     p.pop();
   }
