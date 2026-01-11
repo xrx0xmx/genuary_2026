@@ -32,6 +32,7 @@ class PolarChar {
     this.baseAngle = angle;
     this.baseRadius = baseRadius;
     this.mode = mode;
+    this.isHighlighted = false; // Nueva propiedad para resaltado
 
     // Propiedades variables por modo
     this.resetForMode();
@@ -46,6 +47,7 @@ class PolarChar {
     this.offsetX = 0;
     this.offsetY = 0;
     this.duplicate = false;
+    this.isHighlighted = false; // Reset del resaltado
   }
 
   calculateSize() {
@@ -129,28 +131,37 @@ class PolarChar {
     p.push();
     p.translate(x, y);
 
-    // Color según modo
+    // Determinar color y tamaño según si está resaltada
     let color;
-    switch (this.mode) {
-      case MODES.AUTORITARIO:
-        color = [0, 0, 0]; // Negro autoritario
-        break;
-      case MODES.POETICO:
-        color = [100, 150, 200]; // Azul poético
-        break;
-      case MODES.GLITCH:
-        color = [255, 0, 0]; // Rojo glitch
-        break;
+    let displaySize = this.size;
+
+    if (this.isHighlighted) {
+      // Letra resaltada: blanca y más grande
+      color = [255, 255, 255]; // Blanco para destacar
+      displaySize = this.size * 2.5; // 2.5 veces más grande
+    } else {
+      // Color normal según modo
+      switch (this.mode) {
+        case MODES.AUTORITARIO:
+          color = [0, 0, 0]; // Negro autoritario
+          break;
+        case MODES.POETICO:
+          color = [100, 150, 200]; // Azul poético
+          break;
+        case MODES.GLITCH:
+          color = [255, 0, 0]; // Rojo glitch
+          break;
+      }
     }
 
     p.fill(color[0], color[1], color[2], this.opacity * 255);
     p.noStroke();
     p.textAlign(p.CENTER, p.CENTER);
-    p.textSize(this.size);
+    p.textSize(displaySize);
     p.text(this.char, 0, 0);
 
-    // Duplicado para glitch
-    if (this.duplicate && this.mode === MODES.GLITCH) {
+    // Duplicado para glitch (solo si no está resaltada para no interferir)
+    if (this.duplicate && this.mode === MODES.GLITCH && !this.isHighlighted) {
       p.fill(color[0], color[1], color[2], this.opacity * 100);
       p.text(this.char, Math.random() * 5 - 2.5, Math.random() * 5 - 2.5);
     }
@@ -169,6 +180,9 @@ class PolarTypeSystem {
     this.mouseInfluence = 0;
     this.ringSpacing = 30;
     this.showHUD = true; // Controla la visibilidad del HUD
+    this.highlightIndex = 0; // Índice de la letra resaltada actualmente
+    this.lastHighlightChange = 0; // Tiempo del último cambio de resaltado
+    this.highlightDuration = 800; // Duración del resaltado en ms
     this.initializeCharacters();
   }
 
@@ -226,8 +240,15 @@ class PolarTypeSystem {
     // Actualizar separación entre anillos
     this.ringSpacing = 20 + (mouseY / CANVAS_SIZE) * 40;
 
+    // Actualizar resaltado secuencial
+    if (time - this.lastHighlightChange > this.highlightDuration) {
+      this.highlightIndex = (this.highlightIndex + 1) % this.characters.length;
+      this.lastHighlightChange = time;
+    }
+
     // Actualizar cada caracter
-    this.characters.forEach(char => {
+    this.characters.forEach((char, index) => {
+      char.isHighlighted = (index === this.highlightIndex);
       char.update(time, this.mouseInfluence, this.ringSpacing);
     });
   }
@@ -344,6 +365,8 @@ class PolarTypeSystem {
 
   reset() {
     this.initializeCharacters();
+    this.highlightIndex = 0; // Reiniciar resaltado
+    this.lastHighlightChange = 0;
     console.log('Sistema reiniciado');
   }
 }
