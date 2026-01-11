@@ -247,10 +247,8 @@ class PolarTypeSystem {
       }
     }
 
-    // Dibujar centro como punto de poder
-    p.fill(255, 255, 0, 150);
-    p.noStroke();
-    p.circle(centerX, centerY, 20);
+    // Dibujar centro como "Ojo de Gran Hermano"
+    this.drawBigBrotherEye(p, centerX, centerY);
 
     // Dibujar caracteres
     this.characters.forEach(char => {
@@ -259,6 +257,59 @@ class PolarTypeSystem {
 
     // HUD del modo actual
     this.displayHUD(p);
+  }
+
+  drawBigBrotherEye(p, centerX, centerY) {
+    const eyeRadius = 25;
+    const irisRadius = 15;
+    const pupilRadius = 8;
+
+    p.push();
+    p.translate(centerX, centerY);
+
+    // Globo ocular blanco
+    p.fill(255, 255, 255, 200);
+    p.stroke(0, 0, 0, 100);
+    p.strokeWeight(2);
+    p.circle(0, 0, eyeRadius * 2);
+
+    // Iris amarillo (vigilante)
+    p.fill(255, 255, 0, 180);
+    p.stroke(200, 150, 0, 150);
+    p.strokeWeight(1);
+    p.circle(0, 0, irisRadius * 2);
+
+    // Pupila negra (vacía, vigilante)
+    p.fill(0, 0, 0, 255);
+    p.noStroke();
+    p.circle(0, 0, pupilRadius * 2);
+
+    // Brillo/reflejo en el iris (para hacerlo más realista)
+    p.fill(255, 255, 255, 120);
+    p.noStroke();
+    p.circle(-3, -3, 4);
+
+    // Líneas radiales sutiles del iris (para textura)
+    p.stroke(255, 255, 0, 80);
+    p.strokeWeight(0.5);
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const innerRadius = pupilRadius + 2;
+      const outerRadius = irisRadius - 2;
+      p.line(
+        Math.cos(angle) * innerRadius,
+        Math.sin(angle) * innerRadius,
+        Math.cos(angle) * outerRadius,
+        Math.sin(angle) * outerRadius
+      );
+    }
+
+    // Párpado superior sutil (para dar profundidad)
+    p.fill(0, 0, 0, 30);
+    p.noStroke();
+    p.arc(0, -eyeRadius/2, eyeRadius * 1.8, eyeRadius, Math.PI, Math.PI * 2);
+
+    p.pop();
   }
 
   displayHUD(p) {
