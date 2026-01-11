@@ -365,8 +365,8 @@ const sketch = (p) => {
     p.frameRate(FPS);
     p.textFont('monospace');
 
-    // Configurar grabador para exportar video
-    setupRecorder(p, LOOP_DURATION, FPS);
+    // Configurar grabador para exportar video (grabación manual)
+    setupRecorder(p, 0, FPS);
 
     // Inicializar sistema
     polarSystem = new PolarTypeSystem();
@@ -403,7 +403,7 @@ const sketch = (p) => {
         return;
       }
       if (window.startRecording) {
-        console.log(`🔴 Iniciando grabación de ${LOOP_DURATION}s...`);
+        console.log(`🔴 Iniciando grabación manual... (pulsa S para detener)`);
         window.startRecording();
       } else {
         console.warn('⚠️ Recorder no disponible');

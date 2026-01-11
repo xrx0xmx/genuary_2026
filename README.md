@@ -270,7 +270,7 @@ Sistema de tipografía polar que explora cómo diferentes ideologías visuales a
 | `3` | Modo Glitch (corrupción, inestabilidad) |
 | `D` | Toggle HUD (mostrar/ocultar) |
 | `R` | Reiniciar sistema |
-| `S` | Grabar loop |
+| `S` | Grabar manualmente (S de nuevo para detener) |
 
 ### Características
 
