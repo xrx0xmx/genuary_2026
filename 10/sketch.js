@@ -182,7 +182,7 @@ class PolarTypeSystem {
     this.showHUD = true; // Controla la visibilidad del HUD
     this.highlightIndex = 0; // Índice de la letra resaltada actualmente
     this.lastHighlightChange = 0; // Tiempo del último cambio de resaltado
-    this.highlightDuration = 800; // Duración del resaltado en ms
+    this.highlightDuration = 400; // Duración del resaltado en ms (doble de rápido)
     this.initializeCharacters();
   }
 
