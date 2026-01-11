@@ -255,6 +255,45 @@ Un autómata celular "loco" con 5 modos de lógica diferentes y 6 modos de visua
 
 ---
 
+## Día 10: Polar coordinates
+
+**Prompt**: DISEÑO FUNCIONAL (ACTUALIZADO) — Tipografía Polar: Control, Tiempo y Variantes Ideológicas
+
+Sistema de tipografía polar que explora cómo diferentes ideologías visuales afectan la presentación del mismo mensaje. Tres modos contrastantes que comparten la misma arquitectura formal pero expresan visiones del mundo radicalmente diferentes.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `1` | Modo Autoritario (control absoluto, rígido) |
+| `2` | Modo Poético (flujo temporal, orgánico) |
+| `3` | Modo Glitch (corrupción, inestabilidad) |
+| `R` | Reiniciar sistema |
+| `S` | Grabar loop |
+
+### Características
+
+- **Arquitectura común**: Sistema polar con anillos concéntricos, texto carácter a carácter, conversión polar→cartesiana
+- **Centro como poder**: El centro representa autoridad, todos los elementos orbitan alrededor
+- **Tres ideologías visuales**:
+  - **Autoritario**: Orden perfecto, estabilidad absoluta, control total
+  - **Poético**: Oscilaciones suaves, variaciones orgánicas, flujo temporal
+  - **Glitch**: Ruido discontinuo, saltos abruptos, corrupción del sistema
+- **Interacción mouse**: mouseX controla intensidad del efecto, mouseY controla separación entre anillos
+- **Transición ideológica**: Cambios instantáneos sin animaciones suaves
+
+### Concepto
+
+El mismo mensaje "CONTROL TIEMPO PODER" se presenta bajo tres regímenes visuales:
+
+- **Autoritario** → el texto se impone
+- **Poético** → el texto se interpreta
+- **Glitch** → el texto se cuestiona
+
+El poder está en cómo se organiza, no en el mensaje mismo.
+
+---
+
 ## Grabación de loops
 
 La grabación usa **MediaRecorder API** del navegador (no requiere software externo).
@@ -323,6 +362,10 @@ genuary_2026/
 │   ├── index.html
 │   ├── sketch.js
 │   └── prompt.txt
+├── 10/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
 ├── shared/
 │   ├── loop.js         # Utilidades para loops perfectos
 │   ├── recorder.js     # Wrapper ligero del sistema de grabación
@@ -384,7 +427,7 @@ easing.pingPong(t)      // Ida y vuelta
 | 7 | Boolean algebra | ✅ |
 | 8 | A City | ✅ |
 | 9 | Crazy Automaton | ✅ |
-| 10 | ... | ⏳ |
+| 10 | Polar coordinates | ✅ |
 
 ---
 

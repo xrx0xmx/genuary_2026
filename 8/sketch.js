@@ -933,6 +933,9 @@ const sketch = (p) => {
   };
 
   p.draw = () => {
+    // Limpiar canvas antes de renderizar (evita acumulación de frames en WebGL)
+    p.background(150, 210, 255);
+    
     // En WebGL, trasladar el origen al esquina superior izquierda
     // para mantener el sistema de coordenadas 2D
     p.push();
