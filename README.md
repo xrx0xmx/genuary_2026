@@ -201,6 +201,60 @@ Sloth X-Ray Flashlight — Una linterna digital que revela capas ocultas de un p
 
 ---
 
+## Día 7: Boolean algebra
+
+**Prompt**: Inspírate en el álgebra booleana de cualquier manera
+
+Un sketch basado en operaciones lógicas y compuertas booleanas.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `S` | Grabar loop |
+
+---
+
+## Día 8: A City
+
+**Prompt**: Crea una metrópolis generativa
+
+Una ciudad procedural que se genera automáticamente con edificios, calles y elementos urbanos.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `S` | Grabar loop |
+
+---
+
+## Día 9: Crazy Automaton
+
+**Prompt**: Five Broken Worlds / Six Ways to See Them
+
+Un autómata celular "loco" con 5 modos de lógica diferentes y 6 modos de visualización. Cada mundo tiene reglas rotas o alteradas que producen comportamientos únicos.
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `1-5` | Cambiar modo de lógica (Rule-Switching, Paranoid, Emotional, Corrupted, Liar) |
+| `Espacio` | Cambiar modo visual (Binary, Colored, Memory, Lie, Field, Broken) |
+| `R` | Reset del grid |
+| `D` | Toggle modo debug (HUD con información de celdas) |
+| `S` | Armar grabación → pulsar R o 1-5 para iniciar |
+| `S` (grabando) | Detener grabación manualmente |
+
+### Características
+
+- **5 lógicas rotas**: Rule-Switching, Paranoid, Emotional, Corrupted, Liar
+- **6 visualizaciones**: Binary, Colored States, Visible Memory, Visual Lie, Continuous Field, Broken Visual
+- **Grabación manual**: Sin límite de tiempo, graba hasta que pulses S de nuevo
+- **Debug interactivo**: Hover sobre celdas para ver su estado interno
+
+---
+
 ## Grabación de loops
 
 La grabación usa **MediaRecorder API** del navegador (no requiere software externo).
@@ -257,9 +311,22 @@ genuary_2026/
 │   ├── index.html
 │   ├── sketch.js
 │   └── prompt.txt
+├── 7/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
+├── 8/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
+├── 9/
+│   ├── index.html
+│   ├── sketch.js
+│   └── prompt.txt
 ├── shared/
 │   ├── loop.js         # Utilidades para loops perfectos
-│   ├── recorder.js     # Sistema de grabación
+│   ├── recorder.js     # Wrapper ligero del sistema de grabación
+│   ├── recorder-core.js # Implementación del MediaRecorder
 │   ├── dr_tapiz.jpeg   # Imagen de ejemplo para día 4
 │   ├── sloth_1.png     # Capa 1 del sloth (día 6)
 │   ├── sloth_2.png     # Capa 2 del sloth (día 6)
@@ -314,7 +381,10 @@ easing.pingPong(t)      // Ida y vuelta
 | 4 | Lowres | ✅ |
 | 5 | Write "Genuary" | ✅ |
 | 6 | Lights on/off | ✅ |
-| 7 | ... | ⏳ |
+| 7 | Boolean algebra | ✅ |
+| 8 | A City | ✅ |
+| 9 | Crazy Automaton | ✅ |
+| 10 | ... | ⏳ |
 
 ---
 
