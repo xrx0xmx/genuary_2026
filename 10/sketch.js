@@ -136,8 +136,8 @@ class PolarChar {
     let displaySize = this.size;
 
     if (this.isHighlighted) {
-      // Letra resaltada: roja y mucho más grande
-      color = [255, 0, 0]; // Rojo para destacar
+      // Letra resaltada: negra y mucho más grande
+      color = [0, 0, 0]; // Negro para destacar
       displaySize = this.size * 4.0; // 4 veces más grande
     } else {
       // Color normal según modo
