@@ -268,6 +268,7 @@ Sistema de tipografía polar que explora cómo diferentes ideologías visuales a
 | `1` | Modo Autoritario (control absoluto, rígido) |
 | `2` | Modo Poético (flujo temporal, orgánico) |
 | `3` | Modo Glitch (corrupción, inestabilidad) |
+| `D` | Toggle HUD (mostrar/ocultar) |
 | `R` | Reiniciar sistema |
 | `S` | Grabar loop |
 

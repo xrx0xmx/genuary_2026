@@ -168,6 +168,7 @@ class PolarTypeSystem {
     this.currentMode = MODES.AUTORITARIO;
     this.mouseInfluence = 0;
     this.ringSpacing = 30;
+    this.showHUD = true; // Controla la visibilidad del HUD
     this.initializeCharacters();
   }
 
@@ -255,8 +256,10 @@ class PolarTypeSystem {
       char.display(p, centerX, centerY);
     });
 
-    // HUD del modo actual
-    this.displayHUD(p);
+    // HUD del modo actual (solo si está habilitado)
+    if (this.showHUD) {
+      this.displayHUD(p);
+    }
   }
 
   drawBigBrotherEye(p, centerX, centerY) {
@@ -321,7 +324,7 @@ class PolarTypeSystem {
 
     // Fondo HUD
     p.fill(0, 180);
-    p.rect(10, 10, 200, 120, 8);
+    p.rect(10, 10, 200, 140, 8);
 
     p.fill(255);
     p.textStyle(p.BOLD);
@@ -333,7 +336,8 @@ class PolarTypeSystem {
     p.text(`[1] Autoritario`, 20, 70);
     p.text(`[2] Poético`, 20, 85);
     p.text(`[3] Glitch`, 20, 100);
-    p.text(`[R] Reiniciar`, 20, 115);
+    p.text(`[D] HUD: ${this.showHUD ? 'ON' : 'OFF'}`, 20, 115);
+    p.text(`[R] Reiniciar`, 20, 130);
 
     p.pop();
   }
@@ -382,6 +386,9 @@ const sketch = (p) => {
       polarSystem.setMode(MODES.POETICO);
     } else if (p.key === '3') {
       polarSystem.setMode(MODES.GLITCH);
+    } else if (p.key === 'd' || p.key === 'D') {
+      polarSystem.showHUD = !polarSystem.showHUD;
+      console.log(`HUD ${polarSystem.showHUD ? 'activado' : 'desactivado'}`);
     } else if (p.key === 'r' || p.key === 'R') {
       polarSystem.reset();
     } else if (p.key === 's' || p.key === 'S') {
