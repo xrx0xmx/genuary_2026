@@ -399,14 +399,21 @@ const sketch = (p) => {
       polarSystem.reset();
     } else if (p.key === 's' || p.key === 'S') {
       if (window.isRecording?.()) {
-        console.warn('⚠️ Ya hay una grabación en curso');
-        return;
-      }
-      if (window.startRecording) {
-        console.log(`🔴 Iniciando grabación manual... (pulsa S para detener)`);
-        window.startRecording();
+        // Si hay grabación en curso, detenerla
+        if (window.stopRecording) {
+          window.stopRecording();
+          console.log('⏹️ Grabación detenida');
+        } else {
+          console.warn('⚠️ Función stopRecording no disponible');
+        }
       } else {
-        console.warn('⚠️ Recorder no disponible');
+        // Si no hay grabación, iniciarla
+        if (window.startRecording) {
+          console.log(`🔴 Iniciando grabación manual... (pulsa S para detener)`);
+          window.startRecording();
+        } else {
+          console.warn('⚠️ Recorder no disponible');
+        }
       }
     }
   };
