@@ -38,7 +38,8 @@ console.log(`📁 Salida:  ${outputPath}`);
 
 try {
   // Convertir con ffmpeg
-  execSync(`ffmpeg -y -i "${inputPath}" -c:v libx264 -pix_fmt yuv420p -crf 18 "${outputPath}"`, {
+  // El filtro scale ajusta dimensiones a números pares (requerido por libx264)
+  execSync(`ffmpeg -y -i "${inputPath}" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -crf 18 "${outputPath}"`, {
     stdio: 'inherit',
   });
   
