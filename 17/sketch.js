@@ -891,6 +891,7 @@ function drawUI(p, group, params) {
 // ============================================
 const sketch = (p) => {
   const loop = createLoopHelper(LOOP_DURATION, FPS);
+  let startTime = null;
 
   p.setup = () => {
     p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
@@ -913,6 +914,14 @@ const sketch = (p) => {
 
   p.draw = () => {
     const t = loop.frameProgress(p);
+    
+    // Rotación automática del grupo cada 3 segundos
+    if (startTime === null) startTime = p.millis();
+    const GROUP_ROTATION_INTERVAL = 3; // segundos
+    const elapsedSeconds = (p.millis() - startTime) / 1000;
+    const autoGroupIndex = Math.floor(elapsedSeconds / GROUP_ROTATION_INTERVAL) % GROUPS.length;
+    params.groupIndex = autoGroupIndex;
+    
     const group = GROUPS[params.groupIndex];
     const palette = PALETTES[params.colorScheme % PALETTES.length];
 
@@ -938,10 +947,14 @@ const sketch = (p) => {
     // Navegación de grupos
     if (p.key === '[' || p.key === '{') {
       params.groupIndex = (params.groupIndex - 1 + GROUPS.length) % GROUPS.length;
+      // Reiniciar timer para que la rotación automática continúe desde este grupo
+      startTime = p.millis() - (params.groupIndex * 3 * 1000);
       console.log(`Grupo: ${GROUPS[params.groupIndex].name}`);
     }
     if (p.key === ']' || p.key === '}') {
       params.groupIndex = (params.groupIndex + 1) % GROUPS.length;
+      // Reiniciar timer para que la rotación automática continúe desde este grupo
+      startTime = p.millis() - (params.groupIndex * 3 * 1000);
       console.log(`Grupo: ${GROUPS[params.groupIndex].name}`);
     }
 
