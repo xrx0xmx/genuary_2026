@@ -1,2 +1,3 @@
-Árbol de Reglas - Visualización taxonómica del sistema generativo del día 18
-(Sketch auxiliar, no aparece en el calendario)
+Árbol de Evoluciones del Sistema Celular 16×16
+Visualiza: 4 formas base, cadena Normal→Super(L1-L4)→Singular, 3 finales (Titan/Núcleo/Tetrámero)
+(Sketch auxiliar de documentación, no aparece en el calendario)
